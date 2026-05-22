@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide Complet n8n + Claude IA — Débutant Total</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Source+Code+Pro:wght@400;500&display=swap');
+
+:root {
+  --orange: #FF4D00;
+  --orange2: #FF7A00;
+  --green: #10b981;
+  --blue: #3b82f6;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --bg: #0c0c0c;
+  --white: #0d0d0d;
+  --text: #f0ede8;
+  --muted: #777;
+  --border: #222;
+  --surface: #1a1a1a;
+  --orange-light: rgba(255,77,0,0.12);
+  --orange-border: rgba(255,77,0,0.35);
+  --green-light: rgba(16,185,129,0.1);
+  --green-border: rgba(16,185,129,0.3);
+  --blue-light: rgba(59,130,246,0.1);
+  --blue-border: rgba(59,130,246,0.3);
+  --yellow-light: rgba(245,158,11,0.1);
+  --yellow-border: rgba(245,158,11,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed;
+  left:0; top:0; bottom:0;
+  width: 280px;
+  background: var(--white);
+  border-right: 2px solid var(--border);
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 2px solid var(--border);
+  background: #0d0d0d;
+}
+
+.sidebar-header .logo-badge {
+  display: inline-block;
+  background: var(--orange);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 100px;
+  margin-bottom: 8px;
+}
+
+.sidebar-header h1 {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.3;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+}
+.sidebar-header h1 span { color: var(--orange); }
+
+.sidebar-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.sidebar-nav { padding: 12px 12px; flex:1; }
+
+.nav-group-title {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c4c4c4;
+  padding: 12px 8px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover { background: var(--orange-light); color: var(--orange); border-color: transparent; }
+.nav-item.active { background: var(--orange-light); color: var(--orange); border-color: var(--orange-border); }
+.nav-item .ni { font-size: 16px; width: 22px; text-align: center; }
+
+.nav-sub {
+  padding-left: 44px;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 1px;
+  cursor: pointer;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.nav-sub:hover { color: var(--orange); background: var(--orange-light); padding-left: 44px; }
+
+.sidebar-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: #444;
+  background: #0a0a0a;
+}
+
+/* ── MAIN ── */
+.main { margin-left: 280px; }
+
+/* ── TOP BAR ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(12,12,12,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+
+.topbar-breadcrumb {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.topbar-breadcrumb span { color: var(--orange); }
+
+.reading-time {
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+
+/* ── SECTIONS ── */
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── COVER ── */
+.cover {
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,77,0,0.13) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 80%, rgba(16,185,129,0.06) 0%, transparent 50%),
+              #0c0c0c;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cover::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.015) 59px, rgba(255,255,255,0.015) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.015) 59px, rgba(255,255,255,0.015) 60px);
+  pointer-events: none;
+}
+
+.cover::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; right: -60px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255,77,0,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cover-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--orange-light);
+  border: 1px solid var(--orange-border);
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--orange);
+  margin-bottom: 32px;
+  width: fit-content;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.cover h1 {
+  font-size: clamp(40px, 5vw, 76px);
+  font-weight: 900;
+  line-height: 1.05;
+  margin-bottom: 16px;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -1px;
+}
+
+.cover h1 .accent { color: var(--orange); }
+
+.cover-sub {
+  font-size: 20px;
+  color: var(--muted);
+  max-width: 580px;
+  margin-bottom: 48px;
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+.cover-promise {
+  background: rgba(16,185,129,0.06);
+  border: 1px solid var(--green-border);
+  border-radius: 20px;
+  padding: 24px 28px;
+  max-width: 580px;
+  margin-bottom: 40px;
+}
+
+.cover-promise-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.cover-promise-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ddd;
+}
+
+.cover-promise-item .check { color: var(--green); font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+.cover-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.cstat {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 24px;
+  text-align: center;
+}
+
+.cstat-num { font-size: 36px; font-weight: 900; color: var(--orange); line-height: 1; }
+.cstat-lbl { font-size: 12px; color: #666; font-weight: 600; margin-top: 4px; }
+
+/* ── PAGE WRAPPER ── */
+.page {
+  max-width: 860px;
+  padding: 56px 64px 80px;
+}
+
+/* ── CHAPTER HEADER ── */
+.chap-header {
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 2px solid var(--border);
+}
+
+.chap-num {
+  display: inline-block;
+  background: var(--orange);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 100px;
+  margin-bottom: 14px;
+}
+
+.chap-title {
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 10px;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.chap-desc {
+  font-size: 17px;
+  color: var(--muted);
+  font-weight: 500;
+  max-width: 640px;
+  line-height: 1.65;
+}
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin: 24px 0;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 15px;
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+.callout-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+
+.callout.tip { background: rgba(59,130,246,0.08); border: 1px solid var(--blue-border); color: #93c5fd; }
+.callout.warn { background: rgba(245,158,11,0.08); border: 1px solid var(--yellow-border); color: #fcd34d; }
+.callout.success { background: rgba(16,185,129,0.08); border: 1px solid var(--green-border); color: #6ee7b7; }
+.callout.danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+.callout.orange { background: var(--orange-light); border: 1px solid var(--orange-border); color: #fdba74; }
+
+/* ── STEP BLOCKS ── */
+.step-block {
+  background: #131313;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.step-block:hover {
+  border-color: var(--orange-border);
+  box-shadow: 0 4px 20px rgba(255,77,0,0.08);
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 22px 24px;
+  cursor: pointer;
+}
+
+.step-num-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255,87,34,0.3);
+}
+
+.step-num-circle.done { background: var(--green); box-shadow: 0 4px 12px rgba(46,204,113,0.3); }
+
+.step-title-wrap { flex: 1; }
+
+.step-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+}
+
+.step-summary {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.step-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 100px;
+  flex-shrink: 0;
+}
+
+.badge-time { background: rgba(59,130,246,0.1); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.badge-easy { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
+
+.step-toggle { font-size: 22px; color: #ccc; flex-shrink: 0; margin-top: 6px; transition: transform 0.25s; }
+.step-block.open .step-toggle { transform: rotate(180deg); color: var(--orange); }
+
+.step-body {
+  display: none;
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.step-block.open .step-body { display: block; }
+
+/* ── MINI STEPS INSIDE ── */
+.mini-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+.mini-step:last-child { border-bottom: none; }
+
+.mini-arrow {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #1a1a1a;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--orange);
+  margin-top: 2px;
+}
+
+.mini-content {}
+.mini-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text); font-family: 'Syne', sans-serif; }
+.mini-desc { font-size: 14px; color: #888; font-weight: 400; line-height: 1.6; }
+
+/* ── SCREENSHOT SIM ── */
+.screen-sim {
+  background: #1e1e2e;
+  border-radius: 14px;
+  margin: 20px 0;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  font-family: 'Source Code Pro', monospace;
+}
+
+.screen-bar {
+  background: #2a2a3e;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.screen-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green { background: #28c840; }
+
+.screen-bar-title {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.screen-body {
+  padding: 20px 24px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.sc-prompt { color: #89b4fa; }
+.sc-cmd { color: #a6e3a1; }
+.sc-output { color: #cdd6f4; }
+.sc-success { color: #a6e3a1; }
+.sc-warn { color: #f9e2af; }
+.sc-comment { color: #585b70; }
+.sc-cursor { color: #cdd6f4; animation: blink 1s infinite; }
+@keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
+/* ── BROWSER SIM ── */
+.browser-sim {
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin: 20px 0;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.browser-bar {
+  background: #1a1a1a;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.browser-dots { display: flex; gap: 6px; }
+.browser-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+.browser-url {
+  flex: 1;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--orange);
+  font-family: 'Source Code Pro', monospace;
+}
+
+.browser-body {
+  padding: 24px;
+  color: var(--text);
+}
+
+/* ── VOCAB CARD ── */
+.vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.vocab-card {
+  background: #131313;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+
+.vocab-card:hover { border-color: var(--orange-border); }
+
+.vocab-word {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--orange);
+  margin-bottom: 6px;
+  font-family: 'Syne', sans-serif;
+}
+
+.vocab-def {
+  font-size: 14px;
+  color: #888;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* ── CLICK PATH ── */
+.click-path {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin: 12px 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.click-btn {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 4px 12px;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.click-btn.orange { background: var(--orange); color: white; border-color: var(--orange); }
+.click-btn.blue { background: var(--blue); color: white; border-color: var(--blue); }
+.click-btn.green { background: var(--green); color: white; border-color: var(--green); }
+
+.click-arrow { color: var(--muted); font-size: 16px; }
+
+/* ── CHECKLIST ── */
+.checklist {
+  background: #131313;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+
+.checklist-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Syne', sans-serif;
+}
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #1e1e1e;
+  font-size: 14.5px;
+  font-weight: 400;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.15s;
+}
+
+.check-item:last-child { border-bottom: none; }
+
+.check-item input[type=checkbox] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--orange);
+  flex-shrink: 0;
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+/* ── TABLE ── */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.compare-table th {
+  background: #1a1a1a;
+  color: var(--text);
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  border-bottom: 1px solid var(--border);
+}
+
+.compare-table th:first-child { border-radius: 12px 0 0 0; }
+.compare-table th:last-child { border-radius: 0 12px 0 0; }
+
+.compare-table td {
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 400;
+  border-bottom: 1px solid #1a1a1a;
+  vertical-align: top;
+  color: #ccc;
+}
+
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:nth-child(even) td { background: #0f0f0f; }
+
+/* ── PROGRESS TRACKER ── */
+.progress-tracker {
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  height: 4px;
+  background: var(--border);
+  z-index: 200;
+}
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--orange), var(--orange2)); transition: width 0.4s ease; width: 0%; }
+
+/* ── AUTOMATION CARDS ── */
+.auto-grid { display: flex; flex-direction: column; gap: 18px; }
+
+.auto-card {
+  background: #131313;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.auto-card:hover { border-color: var(--orange-border); box-shadow: 0 4px 20px rgba(255,77,0,0.08); }
+.auto-card.open { border-color: var(--orange-border); }
+
+.ac-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 22px 24px;
+  cursor: pointer;
+}
+
+.ac-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--orange);
+  color: white;
+  font-size: 15px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Syne', sans-serif;
+}
+
+.ac-title { font-size: 17px; font-weight: 800; margin-bottom: 6px; font-family: 'Syne', sans-serif; color: var(--text); }
+.ac-desc { font-size: 14px; color: #888; font-weight: 400; line-height: 1.6; }
+.ac-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+.tool-pill {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #2a2a2a;
+  border-radius: 100px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #777;
+}
+
+.impact-pill {
+  background: var(--green-light);
+  border: 1px solid var(--green-border);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.ac-toggle { font-size: 20px; color: #444; flex-shrink: 0; transition: transform 0.25s; margin-top: 4px; margin-left: auto; }
+.auto-card.open .ac-toggle { transform: rotate(180deg); color: var(--orange); }
+
+.ac-body {
+  display: none;
+  padding: 0 24px 24px;
+  border-top: 1px solid rgba(255,77,0,0.15);
+}
+
+.auto-card.open .ac-body { display: block; }
+
+.wf-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin: 18px 0 12px; font-family: 'Syne', sans-serif; }
+
+.wf-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid #1e1e1e;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #ccc;
+}
+
+.wf-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+  font-family: 'Syne', sans-serif;
+}
+.wf-dot.s { background: var(--orange); }
+.wf-dot.m { background: #333; }
+.wf-dot.e { background: var(--green); }
+
+/* ── METIER TABS ── */
+.metier-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.mtab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  background: #131313;
+  transition: all 0.15s;
+  font-family: 'Syne', sans-serif;
+}
+
+.mtab:hover { border-color: var(--orange-border); color: var(--orange); }
+.mtab.active { background: var(--orange-light); border-color: var(--orange-border); color: var(--orange); }
+.mtab .mti { font-size: 18px; }
+.mtab:hover { border-color: var(--orange-border); color: var(--orange); }
+.mtab.active { background: var(--orange-light); border-color: var(--orange-border); color: var(--orange); }
+
+/* ── RESPONSIVE ── */
+@media (max-width:900px){
+  .sidebar { width: 220px; }
+  .main { margin-left: 220px; }
+  .progress-tracker { left: 220px; }
+  .page { padding: 36px 28px 60px; }
+  .cover { padding: 48px 32px; }
+  .topbar { padding: 12px 28px; }
+}
+@media (max-width:640px){
+  .sidebar { display:none; }
+  .main { margin-left:0; }
+  .progress-tracker { left:0; }
+  .page { padding: 24px 18px 48px; }
+  .cover { padding: 36px 20px; }
+  .topbar { padding: 10px 18px; }
+}
+
+/* ── PRINT ── */
+@media print {
+  .sidebar, .topbar, .progress-tracker { display:none; }
+  .main { margin-left:0; }
+  .section { display:block !important; page-break-after:always; }
+  .step-body, .ac-body { display:block !important; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.section.active .page { animation: fadeUp 0.3s ease; }
+.section.active .cover { animation: fadeUp 0.4s ease; }
+</style>
+</head>
+<body>
+
+<div class="progress-tracker"><div class="progress-fill" id="prog"></div></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-badge">Pack Digital</div>
+    <h1>n8n + <span>Claude IA</span><br>Guide Complet</h1>
+    <div class="sidebar-subtitle">🎯 Pour débutants absolus</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-group-title">Démarrage</div>
+    <div class="nav-item active" onclick="go('cover')"><span class="ni">🏠</span> Accueil</div>
+    <div class="nav-item" onclick="go('vocab')"><span class="ni">📖</span> Vocabulaire expliqué</div>
+    <div class="nav-item" onclick="go('quoi')"><span class="ni">🤔</span> C'est quoi tout ça ?</div>
+
+    <div class="nav-group-title">Les 20 Automatisations</div>
+    <div class="nav-item" onclick="go('auto'); switchM('comptable')"><span class="ni">🧮</span> Comptable</div>
+    <div class="nav-item" onclick="go('auto'); switchM('gerant')"><span class="ni">💼</span> Gérant PME</div>
+    <div class="nav-item" onclick="go('auto'); switchM('juriste')"><span class="ni">⚖️</span> Juriste / Avocat</div>
+    <div class="nav-item" onclick="go('auto'); switchM('commercial')"><span class="ni">🤝</span> Commercial</div>
+
+    <div class="nav-group-title">Installation</div>
+    <div class="nav-item" onclick="go('openrouter')"><span class="ni">🤖</span> Étape 1 — OpenRouter</div>
+    <div class="nav-item" onclick="go('install-local')"><span class="ni">💻</span> Étape 2A — Sur mon PC</div>
+    <div class="nav-item" onclick="go('install-vps')"><span class="ni">☁️</span> Étape 2B — VPS Hostinger</div>
+    <div class="nav-item" onclick="go('premier-workflow')"><span class="ni">⚡</span> Étape 3 — Premier test</div>
+    <div class="nav-item" onclick="go('faq')"><span class="ni">❓</span> Questions fréquentes</div>
+  </div>
+  <div class="sidebar-footer">
+    Version 1.0 · Formation n8n + Claude IA<br>
+    Pour débutants · Tous niveaux
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-breadcrumb">Formation <span>n8n + Claude IA</span></div>
+  <div class="reading-time" id="readLabel">📖 Guide complet</div>
+</div>
+
+<!-- ═══════════════════════════════ COVER ═══════════════════════════════ -->
+<section class="section active" id="s-cover">
+  <div class="cover">
+    <div class="cover-badge">🎓 Formation Complète · Niveau Débutant Total</div>
+    <h1>Automatisez votre métier<br>avec <span class="accent">n8n + Claude IA</span></h1>
+    <p class="cover-sub">Ce guide vous explique absolument tout, étape par étape, comme si vous n'aviez jamais utilisé ces outils. Pas de jargon. Pas d'étapes sautées. Juste des instructions claires et simples.</p>
+
+    <div class="cover-promise">
+      <div class="cover-promise-title">✦ Ce que vous allez accomplir</div>
+      <div class="cover-promise-item"><span class="check">✅</span> Comprendre n8n et l'IA sans formation technique</div>
+      <div class="cover-promise-item"><span class="check">✅</span> Installer vos outils en moins de 30 minutes</div>
+      <div class="cover-promise-item"><span class="check">✅</span> Utiliser l'IA gratuitement avec OpenRouter</div>
+      <div class="cover-promise-item"><span class="check">✅</span> Lancer votre 1ère automatisation aujourd'hui</div>
+      <div class="cover-promise-item"><span class="check">✅</span> Gagner des heures chaque semaine sur votre travail</div>
+    </div>
+
+    <div class="cover-stats">
+      <div class="cstat"><div class="cstat-num">20</div><div class="cstat-lbl">Workflows inclus</div></div>
+      <div class="cstat"><div class="cstat-num">4</div><div class="cstat-lbl">Métiers couverts</div></div>
+      <div class="cstat"><div class="cstat-num">0€</div><div class="cstat-lbl">Coût mensuel IA</div></div>
+      <div class="cstat"><div class="cstat-num">30min</div><div class="cstat-lbl">Pour démarrer</div></div>
+    </div>
+
+    <div class="callout tip" style="margin-top:32px; max-width:580px;">
+      <span class="callout-icon">💡</span>
+      <div><strong>Comment utiliser ce guide :</strong> Utilisez le menu à gauche pour naviguer entre les sections. Chaque étape s'ouvre au clic pour révéler les détails. Cochez les cases au fur et à mesure — vous ne perdrez pas votre progression.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ VOCABULAIRE ═══════════════════════════════ -->
+<section class="section" id="s-vocab">
+  <div class="page">
+    <div class="chap-header">
+      <div class="chap-num">📖 Glossaire</div>
+      <h2 class="chap-title">Les mots qu'on va utiliser<br>— expliqués simplement</h2>
+      <p class="chap-desc">Avant de commencer, voici tous les termes techniques traduits en français simple. Revenez ici si vous ne comprenez pas un mot.</p>
+    </div>
+
+    <div class="callout orange">
+      <span class="callout-icon">🙋</span>
+      <div>Pas besoin de tout mémoriser maintenant. Lisez une fois, puis revenez ici si vous êtes bloqué sur un mot.</div>
+    </div>
+
+    <div class="vocab-grid">
+      <div class="vocab-card">
+        <div class="vocab-word">🔧 n8n</div>
+        <div class="vocab-def">Un logiciel gratuit qui permet de connecter vos applications entre elles et de leur faire faire des choses automatiquement — comme un chef d'orchestre qui dirige tous vos outils numériques.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">🤖 IA (Intelligence Artificielle)</div>
+        <div class="vocab-def">Un programme informatique capable de comprendre le langage humain, lire des documents, rédiger des textes et prendre des décisions — comme avoir un assistant très intelligent disponible 24h/24.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">⚡ Workflow (ou automatisation)</div>
+        <div class="vocab-def">Une suite d'actions qui se déclenchent automatiquement sans que vous ayez à les faire manuellement. Exemple : "Quand je reçois un email avec une facture → l'enregistrer dans mon tableau Excel automatiquement".</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">🌐 API</div>
+        <div class="vocab-def">Un "langage commun" que les logiciels utilisent pour se parler entre eux. Vous n'avez pas besoin de le comprendre en détail — n8n s'en charge pour vous.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">🔑 Clé API</div>
+        <div class="vocab-def">Un mot de passe secret et unique qui prouve à un logiciel que c'est bien vous qui l'utilisez. Comme un badge d'accès numérique. À ne jamais partager !</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">☁️ VPS (Serveur)</div>
+        <div class="vocab-def">Un ordinateur loué sur Internet qui tourne 24h/24 même quand votre PC est éteint. Imaginez un mini-ordinateur que vous louez chez Hostinger pour ~5€/mois et qui travaille pour vous en permanence.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">💻 SSH</div>
+        <div class="vocab-def">Un moyen de contrôler un ordinateur à distance via du texte. Vous tapez des commandes dans une fenêtre noire (le "terminal") et l'ordinateur les exécute. Moins compliqué qu'il n'y paraît !</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">🖥️ Terminal (ou Console)</div>
+        <div class="vocab-def">Une fenêtre avec fond noir où vous tapez des commandes en texte. Sur Windows, c'est "Invite de commandes" ou "PowerShell". Sur Mac, c'est "Terminal". On vous dira exactement quoi taper.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">📦 Node.js</div>
+        <div class="vocab-def">Un programme que n8n a besoin pour fonctionner sur votre ordinateur. Imaginez-le comme le "moteur" qui fait tourner n8n. Installation : 2 clics sur le site officiel.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">🗂️ JSON</div>
+        <div class="vocab-def">Un format de fichier pour stocker des informations de façon organisée. Les workflows n8n se sauvegardent en JSON — vous n'avez qu'à les importer dans n8n, pas besoin de comprendre le contenu.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">🤖 OpenRouter</div>
+        <div class="vocab-def">Un service en ligne qui vous donne accès à plusieurs IA gratuitement. C'est grâce à lui que vos automatisations peuvent utiliser l'IA sans payer d'abonnement mensuel.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">🔗 Webhook</div>
+        <div class="vocab-def">Une "sonnette d'entrée" numérique. Quand quelque chose se passe (un email arrive, un formulaire est soumis), le webhook sonne et déclenche votre automatisation.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">🖧 localhost:5678</div>
+        <div class="vocab-def">"localhost" signifie "sur mon propre ordinateur". "5678" est le numéro de porte. C'est l'adresse pour accéder à n8n quand il est installé sur votre PC.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-word">📡 Credential (Identifiant)</div>
+        <div class="vocab-def">Dans n8n, c'est l'endroit où vous stockez les mots de passe et clés API de vos services. Vous le configurez une fois, et n8n s'en souvient pour tous vos workflows.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ C'EST QUOI ? ═══════════════════════════════ -->
+<section class="section" id="s-quoi">
+  <div class="page">
+    <div class="chap-header">
+      <div class="chap-num">🤔 Comprendre</div>
+      <h2 class="chap-title">Mais c'est quoi exactement<br>tout ce qu'on va faire ?</h2>
+      <p class="chap-desc">Avant de toucher quoi que ce soit, comprenons ensemble ce qu'on construit et pourquoi c'est utile pour vous.</p>
+    </div>
+
+    <h3 style="font-size:22px; font-weight:800; margin-bottom:16px;">🎯 L'idée en une phrase simple</h3>
+    <div class="callout success">
+      <span class="callout-icon">💡</span>
+      <div>Vous allez apprendre à connecter vos outils du quotidien (Gmail, Google Sheets, WhatsApp...) à une intelligence artificielle <strong>gratuite</strong>, de façon à ce que des tâches répétitives se fassent <strong>toutes seules</strong> pendant que vous dormez.</div>
+    </div>
+
+    <h3 style="font-size:22px; font-weight:800; margin:32px 0 16px;">🏗️ Les 3 outils que vous allez utiliser</h3>
+
+    <div class="step-block open">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">1</div>
+        <div class="step-title-wrap">
+          <div class="step-title">🔧 n8n — Le "chef d'orchestre"</div>
+          <div class="step-summary">Le logiciel qui connecte tout et exécute vos automatisations</div>
+        </div>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">n8n (prononcé "n-eight-n") est un logiciel open source (gratuit et libre) que vous installez soit sur votre ordinateur, soit sur un serveur loué. Son rôle est de :</p>
+        <div class="mini-step">
+          <div class="mini-arrow">→</div>
+          <div class="mini-content">
+            <div class="mini-title">Surveiller ce qui se passe</div>
+            <div class="mini-desc">Il surveille votre boîte email, vos formulaires, votre agenda... et réagit quand quelque chose arrive.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">→</div>
+          <div class="mini-content">
+            <div class="mini-title">Envoyer les données à l'IA</div>
+            <div class="mini-desc">Quand il détecte quelque chose (une facture reçue, par exemple), il envoie les informations à l'IA pour analyse.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">→</div>
+          <div class="mini-content">
+            <div class="mini-title">Effectuer l'action finale</div>
+            <div class="mini-desc">Avec la réponse de l'IA, n8n fait l'action : enregistrer dans Sheets, envoyer un email, créer une tâche...</div>
+          </div>
+        </div>
+        <div class="callout tip" style="margin-top:16px">
+          <span class="callout-icon">🎨</span>
+          <div>n8n a une interface visuelle où vous glissez-déposez des "blocs" pour créer vos automatisations, un peu comme construire avec des pièces de Lego. Pas de code requis !</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">2</div>
+        <div class="step-title-wrap">
+          <div class="step-title">🤖 OpenRouter — L'IA gratuite</div>
+          <div class="step-summary">Le service qui vous donne accès à l'intelligence artificielle sans payer</div>
+        </div>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">OpenRouter est une plateforme qui regroupe des dizaines d'intelligences artificielles. Certaines sont gratuites — et c'est celles-là que vous allez utiliser.</p>
+        <div class="mini-step">
+          <div class="mini-arrow">→</div>
+          <div class="mini-content">
+            <div class="mini-title">Vous créez un compte gratuit</div>
+            <div class="mini-desc">En 2 minutes sur openrouter.ai. Aucune carte bancaire requise pour les modèles gratuits.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">→</div>
+          <div class="mini-content">
+            <div class="mini-title">Vous obtenez une "clé API"</div>
+            <div class="mini-desc">C'est un mot de passe que vous donnez à n8n pour qu'il puisse utiliser l'IA à votre place.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">→</div>
+          <div class="mini-content">
+            <div class="mini-title">L'IA travaille dans vos workflows</div>
+            <div class="mini-desc">n8n envoie du texte à l'IA, l'IA répond, n8n utilise la réponse — tout automatiquement.</div>
+          </div>
+        </div>
+        <div class="callout success">
+          <span class="callout-icon">✅</span>
+          <div><strong>Modèles gratuits disponibles :</strong> Mistral 7B, Llama 3.1 8B, Gemma 2 9B, Qwen 2.5 7B. Tous très puissants pour les automatisations de ce pack.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">3</div>
+        <div class="step-title-wrap">
+          <div class="step-title">💻 ou ☁️ Installation — Local ou Hostinger</div>
+          <div class="step-summary">Où est-ce que n8n va tourner ?</div>
+        </div>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">n8n doit "vivre" quelque part pour pouvoir tourner et surveiller vos automatisations. Deux options :</p>
+        <table class="compare-table">
+          <tr>
+            <th>Critère</th>
+            <th>💻 Sur votre PC</th>
+            <th>☁️ VPS Hostinger</th>
+          </tr>
+          <tr>
+            <td><strong>Coût</strong></td>
+            <td>Gratuit</td>
+            <td>~5€/mois</td>
+          </tr>
+          <tr>
+            <td><strong>PC allumé requis ?</strong></td>
+            <td>⚠️ Oui, obligatoire</td>
+            <td>✅ Non, tourne 24/7</td>
+          </tr>
+          <tr>
+            <td><strong>Difficulté</strong></td>
+            <td>⭐ Très facile</td>
+            <td>⭐⭐ Facile avec ce guide</td>
+          </tr>
+          <tr>
+            <td><strong>Idéal pour</strong></td>
+            <td>Apprendre et tester</td>
+            <td>Usage professionnel</td>
+          </tr>
+          <tr>
+            <td><strong>Recommandation</strong></td>
+            <td>Commencer ici</td>
+            <td>Passer ici ensuite</td>
+          </tr>
+        </table>
+        <div class="callout orange">
+          <span class="callout-icon">🗺️</span>
+          <div><strong>Notre conseil :</strong> Commencez par l'installation locale sur votre PC pour apprendre. Quand tout fonctionne et que vous êtes à l'aise, migrez vers le VPS Hostinger pour que ça tourne 24h/24.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ AUTOMATISATIONS ═══════════════════════════════ -->
+<section class="section" id="s-auto">
+  <div class="page">
+    <div class="chap-header">
+      <div class="chap-num">⚡ Les 20 Workflows</div>
+      <h2 class="chap-title">Vos automatisations<br>prêtes à l'emploi</h2>
+      <p class="chap-desc">Choisissez votre métier et découvrez les 5 workflows concrets inclus dans ce pack. Cliquez sur chaque card pour voir les étapes détaillées.</p>
+    </div>
+
+    <div class="metier-tabs" id="mtabs">
+      <div class="mtab active" id="mt-comptable" onclick="switchM('comptable')"><span class="mti">🧮</span> Comptable</div>
+      <div class="mtab" id="mt-gerant" onclick="switchM('gerant')"><span class="mti">💼</span> Gérant PME</div>
+      <div class="mtab" id="mt-juriste" onclick="switchM('juriste')"><span class="mti">⚖️</span> Juriste / Avocat</div>
+      <div class="mtab" id="mt-commercial" onclick="switchM('commercial')"><span class="mti">🤝</span> Commercial</div>
+    </div>
+
+    <div id="autoZone"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ OPENROUTER ═══════════════════════════════ -->
+<section class="section" id="s-openrouter">
+  <div class="page">
+    <div class="chap-header">
+      <div class="chap-num">🤖 Étape 1 sur 3</div>
+      <h2 class="chap-title">Créer votre compte<br>OpenRouter gratuit</h2>
+      <p class="chap-desc">OpenRouter vous donne accès à des IA puissantes gratuitement. C'est la première chose à faire — ça prend 5 minutes chrono.</p>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <div><strong>Bonne nouvelle :</strong> Aucune carte bancaire n'est nécessaire pour les modèles gratuits. Vous créez juste un compte email normal.</div>
+    </div>
+
+    <div class="step-block open">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">1</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Aller sur le site OpenRouter</div>
+          <div class="step-summary">Ouvrir votre navigateur et accéder au site</div>
+        </div>
+        <span class="step-badge badge-time">1 minute</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Ouvrez votre navigateur internet habituel (Chrome, Firefox, Edge — peu importe) et tapez cette adresse dans la barre en haut :</p>
+        <div class="browser-sim">
+          <div class="browser-bar">
+            <div class="browser-dots">
+              <div class="browser-dot" style="background:#ff5f57"></div>
+              <div class="browser-dot" style="background:#febc2e"></div>
+              <div class="browser-dot" style="background:#28c840"></div>
+            </div>
+            <div class="browser-url">https://openrouter.ai</div>
+          </div>
+          <div class="browser-body">
+            <div style="font-weight:800; font-size:18px; margin-bottom:8px;">OpenRouter</div>
+            <div style="color:#888; font-size:14px;">The Unified Interface for LLMs</div>
+            <div style="margin-top:16px; display:flex; gap:10px;">
+              <div style="background:#FF5722; color:white; padding:8px 20px; border-radius:8px; font-size:13px; font-weight:700;">Sign In</div>
+              <div style="border:2px solid #e5e7eb; padding:8px 20px; border-radius:8px; font-size:13px; font-weight:700;">Sign Up ← Cliquez ici</div>
+            </div>
+          </div>
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>La barre d'adresse, c'est la zone en haut de votre navigateur où il y a écrit "https://...". Cliquez dessus, effacez ce qui est écrit, tapez <strong>openrouter.ai</strong> et appuyez sur <strong>Entrée</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">2</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Créer votre compte gratuit</div>
+          <div class="step-summary">Inscription avec votre email ou compte Google</div>
+        </div>
+        <span class="step-badge badge-time">2 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Sur la page d'accueil, cliquez sur <strong>"Sign Up"</strong> (inscription). Vous avez deux options :</p>
+        <div class="mini-step">
+          <div class="mini-arrow">A</div>
+          <div class="mini-content">
+            <div class="mini-title">Option rapide : "Continue with Google"</div>
+            <div class="mini-desc">Si vous avez un compte Gmail, cliquez sur ce bouton. Sélectionnez votre compte Google dans la liste. C'est la méthode la plus rapide — aucun mot de passe à créer.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">B</div>
+          <div class="mini-content">
+            <div class="mini-title">Ou : inscription avec email</div>
+            <div class="mini-desc">Entrez votre adresse email → créez un mot de passe → cliquez "Sign Up" → vérifiez votre boîte mail et cliquez le lien de confirmation.</div>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div>Le site est en anglais mais c'est très simple. "Sign Up" = S'inscrire. "Sign In" = Se connecter. "Email" = votre adresse email. "Password" = mot de passe.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">3</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Créer votre clé API gratuite</div>
+          <div class="step-summary">Obtenir le "mot de passe" que n8n va utiliser</div>
+        </div>
+        <span class="step-badge badge-time">2 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Une fois connecté à votre compte, vous êtes sur le tableau de bord. Voici le chemin exact à suivre :</p>
+        <div class="click-path">
+          <span>Menu en haut à droite</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn">Keys</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn orange">Create Key</span>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">1</div>
+          <div class="mini-content">
+            <div class="mini-title">Cliquez sur "Keys" dans le menu</div>
+            <div class="mini-desc">Dans le menu de navigation (généralement à gauche ou en haut), cherchez l'onglet qui s'appelle "Keys" ou "API Keys". Cliquez dessus.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">2</div>
+          <div class="mini-content">
+            <div class="mini-title">Cliquez sur "Create Key"</div>
+            <div class="mini-desc">Un bouton orange ou bleu qui dit "Create Key" ou "New Key". Cliquez dessus.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">3</div>
+          <div class="mini-content">
+            <div class="mini-title">Donnez un nom à votre clé</div>
+            <div class="mini-desc">Une fenêtre s'ouvre et demande un nom. Tapez exactement : <strong>n8n-automatisation</strong> puis cliquez "Create".</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">4</div>
+          <div class="mini-content">
+            <div class="mini-title">Copiez votre clé IMMÉDIATEMENT !</div>
+            <div class="mini-desc">Votre clé s'affiche une seule fois. Elle ressemble à : <code style="background:#1a1a1a; padding:2px 8px; border-radius:4px; font-size:13px; color:#a6e3a1;">sk-or-v1-abc123def456...</code>. Copiez-la et collez-la dans un fichier texte sur votre bureau. Si vous fermez la fenêtre sans la copier, vous devrez en créer une nouvelle.</div>
+          </div>
+        </div>
+        <div class="callout danger">
+          <span class="callout-icon">🔐</span>
+          <div><strong>Important :</strong> Ne partagez jamais votre clé API avec personne. C'est comme votre mot de passe bancaire — personnel et confidentiel.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle done">✓</div>
+        <div class="step-title-wrap">
+          <div class="step-title">✅ Vérification — Tout est bon ?</div>
+          <div class="step-summary">Confirmez que votre clé API est bien sauvegardée</div>
+        </div>
+        <span class="step-badge badge-easy">Vérif rapide</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <div class="checklist">
+          <div class="checklist-title">📋 Checklist OpenRouter</div>
+          <label class="check-item"><input type="checkbox"> J'ai un compte sur openrouter.ai</label>
+          <label class="check-item"><input type="checkbox"> J'ai créé une clé API nommée "n8n-automatisation"</label>
+          <label class="check-item"><input type="checkbox"> J'ai copié ma clé (commence par sk-or-v1-...) dans un fichier texte</label>
+          <label class="check-item"><input type="checkbox"> Je ne l'ai pas partagée avec quelqu'un</label>
+        </div>
+        <div class="callout success">
+          <span class="callout-icon">🎉</span>
+          <div>Parfait ! OpenRouter est configuré. Passez maintenant à l'installation de n8n. Vous avez le choix entre l'installation sur votre PC (plus simple) ou le VPS Hostinger (recommandé pour un usage permanent).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ INSTALL LOCAL ═══════════════════════════════ -->
+<section class="section" id="s-install-local">
+  <div class="page">
+    <div class="chap-header">
+      <div class="chap-num">💻 Étape 2A sur 3</div>
+      <h2 class="chap-title">Installer n8n<br>sur votre ordinateur</h2>
+      <p class="chap-desc">Cette méthode installe n8n directement sur votre PC ou Mac. Simple, gratuit, mais votre ordinateur doit rester allumé pour que ça marche.</p>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>À retenir :</strong> Tant que votre PC est allumé et connecté à Internet, vos automatisations tournent normalement. Si vous éteignez votre ordinateur ou si Internet coupe, elles s'arrêtent. Pour une solution permanente, utilisez le VPS Hostinger (Section 2B).</div>
+    </div>
+
+    <div class="step-block open">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">1</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Installer Node.js — le moteur de n8n</div>
+          <div class="step-summary">Un logiciel nécessaire pour faire fonctionner n8n</div>
+        </div>
+        <span class="step-badge badge-time">5 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Node.js est un programme informatique dont n8n a besoin pour fonctionner. Vous n'avez pas besoin de savoir ce que c'est — juste l'installer.</p>
+        <div class="mini-step">
+          <div class="mini-arrow">1</div>
+          <div class="mini-content">
+            <div class="mini-title">Ouvrez votre navigateur et allez sur nodejs.org</div>
+            <div class="mini-desc">Tapez <strong>nodejs.org</strong> dans la barre d'adresse et appuyez sur Entrée.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">2</div>
+          <div class="mini-content">
+            <div class="mini-title">Cliquez sur le bouton vert "LTS" (version recommandée)</div>
+            <div class="mini-desc">Sur la page d'accueil, vous verrez deux boutons verts. Cliquez sur celui qui dit <strong>"LTS" ou "Recommended for most users"</strong>. LTS veut dire "version stable recommandée".</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">3</div>
+          <div class="mini-content">
+            <div class="mini-title">Ouvrez le fichier téléchargé et suivez l'installateur</div>
+            <div class="mini-desc">Un fichier .msi (Windows) ou .pkg (Mac) se télécharge. Double-cliquez dessus. Cliquez "Suivant" à chaque étape → "Installer" → laissez faire → "Terminer". Aucune option à changer.</div>
+          </div>
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>L'installation de Node.js dure environ 2-3 minutes. Ne fermez pas la fenêtre pendant ce temps.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">2</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Ouvrir le Terminal (la fenêtre noire)</div>
+          <div class="step-summary">C'est ici que vous taperez les commandes pour lancer n8n</div>
+        </div>
+        <span class="step-badge badge-easy">Simple</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Le terminal est une fenêtre où vous tapez des commandes en texte. C'est moins effrayant qu'il n'y paraît !</p>
+
+        <div style="font-weight:800; margin-bottom:10px; margin-top:16px;">Si vous êtes sur Windows :</div>
+        <div class="click-path">
+          <span>Touche</span>
+          <span class="click-btn">⊞ Windows</span>
+          <span class="click-arrow">+</span>
+          <span class="click-btn">R</span>
+          <span class="click-arrow">→</span>
+          <span>tapez</span>
+          <span class="click-btn blue">cmd</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn green">Entrée</span>
+        </div>
+        <p style="font-size:14px; color:var(--muted); margin-bottom:16px;">OU cherchez "Invite de commandes" dans le menu Démarrer et cliquez dessus.</p>
+
+        <div style="font-weight:800; margin-bottom:10px;">Si vous êtes sur Mac :</div>
+        <div class="click-path">
+          <span>Touche</span>
+          <span class="click-btn">⌘ Cmd</span>
+          <span class="click-arrow">+</span>
+          <span class="click-btn">Espace</span>
+          <span class="click-arrow">→</span>
+          <span>tapez</span>
+          <span class="click-btn blue">Terminal</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn green">Entrée</span>
+        </div>
+
+        <p style="margin-top:16px; font-size:15px;">Une fenêtre noire (ou blanche sur Mac) s'ouvre avec un curseur clignotant. C'est normal !</p>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">3</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Lancer n8n avec une seule commande</div>
+          <div class="step-summary">Copiez et collez cette ligne dans le terminal</div>
+        </div>
+        <span class="step-badge badge-time">3 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Dans la fenêtre noire du terminal, tapez exactement la commande suivante (ou copiez-collez-la) :</p>
+        <div class="screen-sim">
+          <div class="screen-bar">
+            <div class="screen-dot dot-red"></div>
+            <div class="screen-dot dot-yellow"></div>
+            <div class="screen-dot dot-green"></div>
+            <div class="screen-bar-title">Terminal / Invite de commandes</div>
+          </div>
+          <div class="screen-body">
+            <div class="sc-prompt">C:\Users\VotreNom&gt; </div>
+            <div class="sc-cmd">npx n8n</div>
+            <br>
+            <div class="sc-comment"># Attendez... n8n se télécharge et s'installe</div>
+            <div class="sc-output">Need to install the following packages:</div>
+            <div class="sc-output">  n8n@1.x.x</div>
+            <div class="sc-output">Ok to proceed? (y) </div>
+            <div class="sc-comment"># Appuyez sur la touche Y puis Entrée</div>
+            <br>
+            <div class="sc-success">✔ n8n ready on http://localhost:5678</div>
+            <div class="sc-comment"># ← Quand vous voyez ça, c'est bon !</div>
+            <div class="sc-cursor">_</div>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div>Si le terminal vous demande "Ok to proceed? (y)" → tapez la lettre <strong>y</strong> et appuyez sur <strong>Entrée</strong>. Ne fermez PAS cette fenêtre noire pendant l'utilisation de n8n — c'est elle qui fait tourner le logiciel.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">4</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Ouvrir n8n dans votre navigateur</div>
+          <div class="step-summary">Accéder à l'interface visuelle de n8n</div>
+        </div>
+        <span class="step-badge badge-easy">30 secondes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Quand le terminal affiche "n8n ready", ouvrez votre navigateur et tapez cette adresse :</p>
+        <div class="browser-sim">
+          <div class="browser-bar">
+            <div class="browser-dots">
+              <div class="browser-dot" style="background:#ff5f57"></div>
+              <div class="browser-dot" style="background:#febc2e"></div>
+              <div class="browser-dot" style="background:#28c840"></div>
+            </div>
+            <div class="browser-url">http://localhost:5678</div>
+          </div>
+          <div class="browser-body">
+            <div style="text-align:center; padding:20px 0;">
+              <div style="font-size:32px; margin-bottom:12px;">🎉</div>
+              <div style="font-weight:800; font-size:18px; margin-bottom:8px;">Bienvenue sur n8n !</div>
+              <div style="color:#888; font-size:14px; margin-bottom:16px;">Créez votre compte administrateur</div>
+              <div style="background:#1a1a1a; border-radius:8px; padding:12px; font-size:13px; color:#aaa;">
+                📝 Formulaire : Prénom, Nom, Email, Mot de passe
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div><strong>"localhost:5678"</strong> se traduit par : "sur mon propre ordinateur (localhost), à la porte numéro 5678". Ce n'est pas sur Internet — c'est uniquement sur votre machine, donc sécurisé.</div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">→</div>
+          <div class="mini-content">
+            <div class="mini-title">Créez votre compte administrateur</div>
+            <div class="mini-desc">Remplissez le formulaire : prénom, nom, email (peut être faux, c'est local), mot de passe. Ces informations ne sont sauvegardées QUE sur votre ordinateur.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">5</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Importer les workflows du pack</div>
+          <div class="step-summary">Charger les 20 automatisations prêtes à l'emploi</div>
+        </div>
+        <span class="step-badge badge-time">5 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Votre pack contient des fichiers <strong>.json</strong> pour chaque workflow. Voici comment les importer :</p>
+        <div class="click-path">
+          <span>Dans n8n</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn">Menu haut gauche</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn blue">Workflows</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn orange">Import from file</span>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">1</div>
+          <div class="mini-content">
+            <div class="mini-title">Cliquez sur "Workflows" dans le menu gauche</div>
+            <div class="mini-desc">Dans la barre de navigation gauche de n8n, cliquez sur "Workflows" pour voir la liste de vos workflows.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">2</div>
+          <div class="mini-content">
+            <div class="mini-title">Cliquez le bouton "Import" ou "+"</div>
+            <div class="mini-desc">En haut à droite de la page Workflows, cherchez un bouton "Import" ou une icône "+". Cliquez dessus.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">3</div>
+          <div class="mini-content">
+            <div class="mini-title">Sélectionnez le fichier JSON du workflow voulu</div>
+            <div class="mini-desc">Une fenêtre de sélection de fichier s'ouvre. Naviguez jusqu'au dossier où vous avez sauvegardé les fichiers JSON de votre pack. Sélectionnez le fichier et cliquez "Ouvrir".</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">4</div>
+          <div class="mini-content">
+            <div class="mini-title">Le workflow apparaît dans n8n !</div>
+            <div class="mini-desc">Vous verrez le workflow s'afficher avec tous ses blocs colorés connectés. Il est prêt à être configuré avec votre clé OpenRouter.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle done">✓</div>
+        <div class="step-title-wrap">
+          <div class="step-title">✅ Checklist Installation Locale</div>
+          <div class="step-summary">Vérifiez que tout est en ordre</div>
+        </div>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <div class="checklist">
+          <div class="checklist-title">📋 Checklist Installation PC</div>
+          <label class="check-item"><input type="checkbox"> Node.js est installé (j'ai vu l'installateur se terminer)</label>
+          <label class="check-item"><input type="checkbox"> J'ai tapé "npx n8n" dans le terminal et vu "n8n ready"</label>
+          <label class="check-item"><input type="checkbox"> J'ai ouvert localhost:5678 dans mon navigateur</label>
+          <label class="check-item"><input type="checkbox"> J'ai créé mon compte administrateur n8n</label>
+          <label class="check-item"><input type="checkbox"> J'ai importé au moins un workflow JSON</label>
+        </div>
+        <div class="callout orange">
+          <span class="callout-icon">🔔</span>
+          <div><strong>Rappel important :</strong> Chaque fois que vous rallumez votre PC et voulez utiliser n8n, vous devrez ré-ouvrir le terminal et retaper <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;font-size:13px;color:#a6e3a1;">npx n8n</code>. Ne fermez jamais la fenêtre noire tant que n8n est en cours d'utilisation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ INSTALL VPS ═══════════════════════════════ -->
+<section class="section" id="s-install-vps">
+  <div class="page">
+    <div class="chap-header">
+      <div class="chap-num">☁️ Étape 2B sur 3</div>
+      <h2 class="chap-title">Installer n8n sur<br>un VPS Hostinger</h2>
+      <p class="chap-desc">Cette méthode installe n8n sur un serveur en ligne qui tourne 24h/24, même quand votre PC est éteint. C'est la solution recommandée pour un usage professionnel.</p>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <div><strong>Avantage clé :</strong> Vos automatisations tournent en permanence, 7 jours sur 7, 24 heures sur 24 — même en vacances, même la nuit, même PC éteint. Pour environ 5€ par mois.</div>
+    </div>
+
+    <div class="step-block open">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">1</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Acheter un VPS sur Hostinger</div>
+          <div class="step-summary">Louer votre mini-serveur personnel</div>
+        </div>
+        <span class="step-badge badge-time">10 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Un VPS (Virtual Private Server) est un mini-ordinateur loué sur Internet. Hostinger propose des offres accessibles et fiables.</p>
+        <div class="mini-step">
+          <div class="mini-arrow">1</div>
+          <div class="mini-content">
+            <div class="mini-title">Allez sur hostinger.fr</div>
+            <div class="mini-desc">Tapez <strong>hostinger.fr</strong> dans votre navigateur. Cherchez la section "VPS Hosting" dans le menu.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">2</div>
+          <div class="mini-content">
+            <div class="mini-title">Choisissez l'offre "KVM 1" ou "KVM 2"</div>
+            <div class="mini-desc">L'offre KVM 1 (~4-5€/mois) est suffisante pour démarrer. KVM 2 (~8-9€/mois) si vous avez plus de 5 workflows actifs. Cliquez "Ajouter au panier".</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">3</div>
+          <div class="mini-content">
+            <div class="mini-title">Lors de la configuration : choisissez Ubuntu 22.04</div>
+            <div class="mini-desc">Pendant l'achat, on vous demande quel "système d'exploitation" installer. Cherchez <strong>"Ubuntu 22.04 LTS"</strong> et sélectionnez-le. C'est le plus compatible avec n8n.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">4</div>
+          <div class="mini-content">
+            <div class="mini-title">Finalisez l'achat et notez vos identifiants</div>
+            <div class="mini-desc">Après paiement, Hostinger vous envoie un email avec : l'adresse IP de votre serveur, le nom d'utilisateur (souvent "root") et le mot de passe. <strong>Sauvegardez ces informations précieusement !</strong></div>
+          </div>
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>L'adresse IP ressemble à : <strong>185.234.XX.XX</strong>. C'est l'adresse de votre mini-ordinateur sur Internet. Notez-la bien.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">2</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Se connecter au serveur via SSH</div>
+          <div class="step-summary">Prendre le contrôle de votre mini-ordinateur à distance</div>
+        </div>
+        <span class="step-badge badge-time">5 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">SSH vous permet de contrôler votre serveur Hostinger depuis votre PC, comme si vous tapiez sur son clavier à distance.</p>
+
+        <div style="font-weight:800; margin-bottom:10px; margin-top:16px;">Sur Windows :</div>
+        <div class="click-path">
+          <span class="click-btn">⊞ Windows</span>
+          <span class="click-arrow">→</span>
+          <span>tapez</span>
+          <span class="click-btn blue">PowerShell</span>
+          <span class="click-arrow">→</span>
+          <span>Clic droit</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn orange">Exécuter en tant qu'admin</span>
+        </div>
+
+        <div style="font-weight:800; margin:16px 0 10px;">Sur Mac :</div>
+        <div class="click-path">
+          <span class="click-btn">⌘ Cmd + Espace</span>
+          <span class="click-arrow">→</span>
+          <span>tapez</span>
+          <span class="click-btn blue">Terminal</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn green">Entrée</span>
+        </div>
+
+        <p style="margin:16px 0 12px; font-size:15px;">Dans la fenêtre ouverte, tapez cette commande (remplacez l'IP par la vôtre) :</p>
+        <div class="screen-sim">
+          <div class="screen-bar">
+            <div class="screen-dot dot-red"></div><div class="screen-dot dot-yellow"></div><div class="screen-dot dot-green"></div>
+            <div class="screen-bar-title">Terminal — Connexion SSH</div>
+          </div>
+          <div class="screen-body">
+            <div class="sc-prompt">$ </div>
+            <div class="sc-cmd">ssh root@185.234.XX.XX</div>
+            <div class="sc-comment"># Remplacez 185.234.XX.XX par votre vraie adresse IP</div>
+            <br>
+            <div class="sc-warn">Are you sure you want to continue connecting? (yes/no)</div>
+            <div class="sc-comment"># Tapez : yes  puis Entrée</div>
+            <br>
+            <div class="sc-output">root@185.234.XX.XX's password: </div>
+            <div class="sc-comment"># Tapez votre mot de passe Hostinger (rien ne s'affiche, c'est normal !)</div>
+            <br>
+            <div class="sc-success">Welcome to Ubuntu 22.04 LTS</div>
+            <div class="sc-prompt">root@vps:~# </div>
+            <div class="sc-comment"># Vous êtes connecté ! Le curseur attend vos commandes.</div>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div>Quand vous tapez votre mot de passe SSH, rien ne s'affiche à l'écran — ni étoiles, ni points. C'est normal, c'est une mesure de sécurité. Tapez votre mot de passe en aveugle et appuyez sur Entrée.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">3</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Installer n8n sur le serveur</div>
+          <div class="step-summary">3 commandes et c'est fait — copiez-collez simplement</div>
+        </div>
+        <span class="step-badge badge-time">10 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Une fois connecté à votre serveur (vous voyez <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;font-size:13px;color:#a6e3a1;">root@vps:~#</code>), tapez ces commandes une par une. Appuyez sur Entrée après chaque ligne et attendez que ça se termine :</p>
+        <div class="screen-sim">
+          <div class="screen-bar">
+            <div class="screen-dot dot-red"></div><div class="screen-dot dot-yellow"></div><div class="screen-dot dot-green"></div>
+            <div class="screen-bar-title">Serveur Hostinger — Installation n8n</div>
+          </div>
+          <div class="screen-body">
+            <div class="sc-comment"># Commande 1 : Mettre à jour le serveur (attendez ~2 min)</div>
+            <div class="sc-prompt">root@vps:~# </div>
+            <div class="sc-cmd">apt update && apt upgrade -y</div>
+            <br>
+            <div class="sc-comment"># Commande 2 : Installer Node.js (attendez ~1 min)</div>
+            <div class="sc-prompt">root@vps:~# </div>
+            <div class="sc-cmd">curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt install -y nodejs</div>
+            <br>
+            <div class="sc-comment"># Commande 3 : Installer n8n globalement (attendez ~3 min)</div>
+            <div class="sc-prompt">root@vps:~# </div>
+            <div class="sc-cmd">npm install -g n8n</div>
+            <br>
+            <div class="sc-success">+ n8n@latest</div>
+            <div class="sc-success">added 847 packages in 3 minutes</div>
+            <div class="sc-comment"># Installation terminée !</div>
+          </div>
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>Ces commandes peuvent afficher beaucoup de texte qui défile — c'est normal ! Attendez simplement que le curseur <code style="background:#1e1e2e;color:#a6e3a1;padding:2px 6px;border-radius:4px;font-size:12px;">root@vps:~#</code> réapparaisse pour savoir qu'une commande est terminée.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">4</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Lancer n8n en mode permanent</div>
+          <div class="step-summary">Démarrer n8n pour qu'il tourne indéfiniment</div>
+        </div>
+        <span class="step-badge badge-time">3 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Pour que n8n tourne même si vous fermez le terminal, on utilise un outil appelé "screen" qui maintient le processus en vie :</p>
+        <div class="screen-sim">
+          <div class="screen-bar">
+            <div class="screen-dot dot-red"></div><div class="screen-dot dot-yellow"></div><div class="screen-dot dot-green"></div>
+            <div class="screen-bar-title">Démarrage de n8n en arrière-plan</div>
+          </div>
+          <div class="screen-body">
+            <div class="sc-comment"># Installer "screen" (une seule fois)</div>
+            <div class="sc-prompt">root@vps:~# </div>
+            <div class="sc-cmd">apt install -y screen</div>
+            <br>
+            <div class="sc-comment"># Créer une session screen nommée "n8n"</div>
+            <div class="sc-prompt">root@vps:~# </div>
+            <div class="sc-cmd">screen -S n8n</div>
+            <br>
+            <div class="sc-comment"># Une nouvelle fenêtre s'ouvre. Lancez n8n dedans :</div>
+            <div class="sc-prompt">root@vps:~# </div>
+            <div class="sc-cmd">N8N_BASIC_AUTH_ACTIVE=true N8N_BASIC_AUTH_USER=admin N8N_BASIC_AUTH_PASSWORD=VotreMotDePasse n8n start</div>
+            <br>
+            <div class="sc-success">Editor is now accessible via:</div>
+            <div class="sc-success">http://0.0.0.0:5678/</div>
+            <div class="sc-comment"># Pour quitter screen sans arrêter n8n : Ctrl+A puis D</div>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div>Remplacez <strong>VotreMotDePasse</strong> par un mot de passe de votre choix. Notez-le car c'est ce que vous utiliserez pour vous connecter à n8n depuis votre navigateur.</div>
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div><strong>Pour détacher screen sans arrêter n8n :</strong> Appuyez simultanément sur <strong>Ctrl+A</strong> puis relâchez et appuyez sur <strong>D</strong>. n8n continue de tourner en arrière-plan !</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">5</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Accéder à n8n depuis votre navigateur</div>
+          <div class="step-summary">Ouvrir l'interface n8n depuis n'importe où</div>
+        </div>
+        <span class="step-badge badge-easy">Simple</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Maintenant que n8n tourne sur votre serveur, vous pouvez y accéder depuis n'importe quel appareil (PC, téléphone, tablette) en tapant cette adresse dans votre navigateur :</p>
+        <div class="browser-sim">
+          <div class="browser-bar">
+            <div class="browser-dots">
+              <div class="browser-dot" style="background:#ff5f57"></div>
+              <div class="browser-dot" style="background:#febc2e"></div>
+              <div class="browser-dot" style="background:#28c840"></div>
+            </div>
+            <div class="browser-url">http://185.234.XX.XX:5678</div>
+          </div>
+          <div class="browser-body">
+            <div style="text-align:center;padding:16px;">
+              <div style="font-size:28px;margin-bottom:8px;">🔐</div>
+              <div style="font-weight:800;font-size:16px;margin-bottom:6px;">Connexion à n8n</div>
+              <div style="background:#1a1a1a;border-radius:8px;padding:12px;font-size:13px;color:#aaa;">
+                Identifiant : admin<br>Mot de passe : VotreMotDePasse
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="callout success">
+          <span class="callout-icon">🎉</span>
+          <div>Félicitations ! Votre n8n tourne maintenant 24h/24 sur votre serveur Hostinger. Vos automatisations fonctionneront même quand vous dormez !</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ PREMIER WORKFLOW ═══════════════════════════════ -->
+<section class="section" id="s-premier-workflow">
+  <div class="page">
+    <div class="chap-header">
+      <div class="chap-num">⚡ Étape 3 sur 3</div>
+      <h2 class="chap-title">Configurer l'IA dans n8n<br>et lancer votre 1er test</h2>
+      <p class="chap-desc">Maintenant que n8n est installé, on connecte votre clé OpenRouter pour que l'IA fonctionne dans vos workflows.</p>
+    </div>
+
+    <div class="step-block open">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">1</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Ajouter votre clé OpenRouter dans n8n</div>
+          <div class="step-summary">Connecter l'IA gratuite à votre instance n8n</div>
+        </div>
+        <span class="step-badge badge-time">5 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Dans l'interface n8n (ouverte dans votre navigateur), suivez ce chemin :</p>
+        <div class="click-path">
+          <span>Dans n8n</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn">⚙️ Settings</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn blue">Credentials</span>
+          <span class="click-arrow">→</span>
+          <span class="click-btn orange">+ Add Credential</span>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">1</div>
+          <div class="mini-content">
+            <div class="mini-title">Cherchez "HTTP Header Auth" dans la liste</div>
+            <div class="mini-desc">Une fenêtre de recherche s'ouvre. Tapez "Header" et sélectionnez "Header Auth" ou "HTTP Header Auth".</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">2</div>
+          <div class="mini-content">
+            <div class="mini-title">Remplissez le formulaire</div>
+            <div class="mini-desc">
+              • <strong>Name :</strong> OpenRouter-Free<br>
+              • <strong>Name (header) :</strong> Authorization<br>
+              • <strong>Value :</strong> Bearer sk-or-v1-VOTRE_CLÉ_ICI<br>
+              (Remplacez VOTRE_CLÉ_ICI par la clé que vous avez copiée depuis OpenRouter)
+            </div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">3</div>
+          <div class="mini-content">
+            <div class="mini-title">Cliquez "Save"</div>
+            <div class="mini-desc">Cliquez le bouton bleu "Save" ou "Créer". Votre identifiant OpenRouter est maintenant sauvegardé dans n8n.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle">2</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Tester l'IA avec un workflow simple</div>
+          <div class="step-summary">Vérifier que tout fonctionne en 2 minutes</div>
+        </div>
+        <span class="step-badge badge-time">5 minutes</span>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <p style="margin:16px 0 12px; font-size:15px;">Créons un workflow test ultra-simple : vous cliquez un bouton → l'IA répond "Bonjour !"</p>
+        <div class="mini-step">
+          <div class="mini-arrow">1</div>
+          <div class="mini-content">
+            <div class="mini-title">Créez un nouveau workflow</div>
+            <div class="mini-desc">Dans n8n, cliquez sur "+ New Workflow" ou le bouton pour créer un nouveau workflow.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">2</div>
+          <div class="mini-content">
+            <div class="mini-title">Ajoutez un nœud "Manual Trigger"</div>
+            <div class="mini-desc">Cliquez sur le bouton "+" pour ajouter un nœud. Cherchez "Manual Trigger" et sélectionnez-le. C'est le bouton de déclenchement manuel.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">3</div>
+          <div class="mini-content">
+            <div class="mini-title">Ajoutez un nœud "HTTP Request"</div>
+            <div class="mini-desc">Cliquez encore sur "+" → cherchez "HTTP Request" → sélectionnez-le → connectez-le au Manual Trigger.</div>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">4</div>
+          <div class="mini-content">
+            <div class="mini-title">Configurez le nœud HTTP Request</div>
+            <div class="mini-desc">
+              • <strong>Method :</strong> POST<br>
+              • <strong>URL :</strong> https://openrouter.ai/api/v1/chat/completions<br>
+              • <strong>Authentication :</strong> Predefined Credential → sélectionnez "OpenRouter-Free"<br>
+              • <strong>Body :</strong> JSON — collez le code ci-dessous
+            </div>
+          </div>
+        </div>
+        <div class="screen-sim">
+          <div class="screen-bar">
+            <div class="screen-dot dot-red"></div><div class="screen-dot dot-yellow"></div><div class="screen-dot dot-green"></div>
+            <div class="screen-bar-title">Corps de la requête (Body) — À copier-coller</div>
+          </div>
+          <div class="screen-body">
+<span class="sc-output">{</span>
+  <span class="sc-comment">"model"</span><span class="sc-output">: </span><span class="sc-cmd">"mistralai/mistral-7b-instruct:free"</span><span class="sc-output">,</span>
+  <span class="sc-comment">"messages"</span><span class="sc-output">: [</span>
+    <span class="sc-output">{</span>
+      <span class="sc-comment">"role"</span><span class="sc-output">: </span><span class="sc-cmd">"user"</span><span class="sc-output">,</span>
+      <span class="sc-comment">"content"</span><span class="sc-output">: </span><span class="sc-cmd">"Dis-moi juste Bonjour en français !"</span>
+    <span class="sc-output">}</span>
+  <span class="sc-output">]</span>
+<span class="sc-output">}</span>
+          </div>
+        </div>
+        <div class="mini-step">
+          <div class="mini-arrow">5</div>
+          <div class="mini-content">
+            <div class="mini-title">Cliquez "Execute Workflow" et regardez le résultat !</div>
+            <div class="mini-desc">Cliquez le bouton "Execute Workflow" en bas. Les blocs vont s'animer et vous verrez la réponse de l'IA apparaître en vert sur le nœud HTTP Request. Si vous voyez une réponse "Bonjour !" → <strong>tout fonctionne parfaitement !</strong></div>
+          </div>
+        </div>
+        <div class="callout success">
+          <span class="callout-icon">🎉</span>
+          <div>Si vous voyez une réponse de l'IA, félicitations ! Votre configuration est complète. Vous pouvez maintenant importer et utiliser tous les workflows de ce pack.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-header" onclick="toggleStep(this)">
+        <div class="step-num-circle done">✓</div>
+        <div class="step-title-wrap">
+          <div class="step-title">✅ Checklist Finale — Vous êtes prêt !</div>
+          <div class="step-summary">Tout est configuré pour utiliser vos 20 automatisations</div>
+        </div>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <div class="checklist">
+          <div class="checklist-title">📋 Checklist Complète du Pack</div>
+          <label class="check-item"><input type="checkbox"> J'ai un compte OpenRouter avec ma clé API sauvegardée</label>
+          <label class="check-item"><input type="checkbox"> n8n est installé (sur mon PC ou sur un VPS Hostinger)</label>
+          <label class="check-item"><input type="checkbox"> J'ai configuré ma clé OpenRouter dans les Credentials n8n</label>
+          <label class="check-item"><input type="checkbox"> J'ai testé avec un workflow simple et reçu une réponse de l'IA</label>
+          <label class="check-item"><input type="checkbox"> J'ai importé les workflows JSON de mon métier</label>
+          <label class="check-item"><input type="checkbox"> J'ai activé mon premier workflow avec le bouton "Active"</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ FAQ ═══════════════════════════════ -->
+<section class="section" id="s-faq">
+  <div class="page">
+    <div class="chap-header">
+      <div class="chap-num">❓ FAQ</div>
+      <h2 class="chap-title">Questions fréquentes<br>des débutants</h2>
+      <p class="chap-desc">Les problèmes les plus courants et leurs solutions simples.</p>
+    </div>
+
+    <div id="faqZone"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ─── DATA AUTOMATIONS ─── */
+const autoData = {
+  comptable:{icon:"🧮",label:"Comptable",automations:[
+    {title:"Traitement automatique des factures entrantes",desc:"Chaque facture reçue par email est extraite, analysée par l'IA, catégorisée et ajoutée à un tableau Google Sheets avec TVA, montant HT/TTC et fournisseur. Zéro saisie manuelle.",tools:["Gmail","OpenRouter AI","Google Sheets"],impact:"Économise 3h/semaine",steps:["📧 Déclencheur : un email avec pièce jointe PDF arrive dans Gmail","📄 n8n extrait automatiquement le fichier PDF","🤖 L'IA (Mistral-7B gratuit) lit le PDF et extrait : fournisseur, montant HT, TTC, TVA, date","📊 Les données sont ajoutées dans une nouvelle ligne de Google Sheets","🔔 Une notification est envoyée sur Telegram ou Slack au comptable"]},
+    {title:"Génération automatique de rapports financiers mensuels",desc:"Le 1er de chaque mois, n8n collecte toutes les dépenses du mois précédent, demande à l'IA de les analyser et génère un rapport clair envoyé par email au dirigeant.",tools:["Google Sheets","OpenRouter AI","Gmail"],impact:"Rapport en 2 min au lieu de 4h",steps:["⏰ Déclencheur automatique le 1er du mois à 8h du matin","📊 Récupération de toutes les lignes de dépenses du mois dans Sheets","🤖 L'IA analyse les données et génère un résumé avec tendances et anomalies","📝 Création du rapport texte structuré avec les chiffres clés","📧 Envoi automatique du rapport par email au dirigeant"]},
+    {title:"Relances automatiques des factures impayées",desc:"Chaque jour, n8n vérifie vos factures non payées dans Google Sheets et envoie des relances par email dont le ton devient plus ferme avec le temps.",tools:["Google Sheets","Gmail","OpenRouter AI"],impact:"Taux de recouvrement +40%",steps:["⏰ Vérification automatique chaque matin à 9h","🔍 Identification des factures dépassant leur date d'échéance","🤖 L'IA rédige un email personnalisé selon le délai (J+5 : aimable, J+15 : ferme, J+30 : urgent)","📧 Envoi de l'email de relance avec la facture en pièce jointe","✏️ Mise à jour automatique du statut dans Google Sheets"]},
+    {title:"Extraction des dépenses depuis les photos de reçus",desc:"Le client prend en photo un ticket de caisse, l'envoie sur Telegram, et l'IA extrait le montant, la catégorie et la date automatiquement.",tools:["Telegram Bot","OpenRouter Vision","Google Sheets"],impact:"Zéro saisie manuelle",steps:["📸 Photo du ticket de caisse envoyée via Telegram","🤖 n8n reçoit l'image et l'envoie au modèle Vision d'OpenRouter","👁️ L'IA 'lit' l'image et extrait : nom du commerce, montant total, TVA, date","📊 Les données structurées sont automatiquement enregistrées dans Sheets","✅ Confirmation envoyée au client sur Telegram"]},
+    {title:"Assistant comptable IA disponible 24h/24 sur Telegram",desc:"Un chatbot intelligent disponible en permanence qui répond aux questions fiscales, calcule la TVA, rappelle les échéances et oriente vers le bon service.",tools:["Telegram Bot","OpenRouter AI","Google Sheets"],impact:"Support client 24/7 sans surcoût",steps:["💬 Client envoie une question comptable sur Telegram","🔄 n8n reçoit le message et le transmet à OpenRouter avec un contexte comptable","🤖 L'IA répond de manière professionnelle avec les informations correctes","📱 La réponse est envoyée instantanément au client sur Telegram","📝 La conversation est enregistrée dans Sheets pour traçabilité"]}
+  ]},
+  gerant:{icon:"💼",label:"Gérant PME",automations:[
+    {title:"Dashboard de pilotage PME envoyé chaque matin",desc:"Chaque matin à 8h, vous recevez sur Telegram ou par email un résumé complet de la situation de votre entreprise : ventes, dépenses, trésorerie, leads en cours.",tools:["Google Sheets","OpenRouter AI","Telegram"],impact:"Vision 360° en 30 secondes",steps:["⏰ Déclencheur automatique chaque matin à 8h précises","📊 Collecte des données depuis toutes vos sources connectées (Sheets, CRM...)","🤖 L'IA analyse les tendances, compare avec la semaine précédente et identifie les anomalies","📝 Génération du rapport synthèse avec les KPIs principaux","📱 Envoi du rapport formaté sur Telegram et/ou par email au gérant"]},
+    {title:"Gestion automatisée des demandes de congés",desc:"Les employés soumettent leurs congés via un formulaire. n8n vérifie automatiquement les conflits, envoie la validation et met à jour le planning.",tools:["Google Forms","Google Sheets","Gmail","OpenRouter AI"],impact:"0 email de coordination RH",steps:["📝 L'employé remplit le formulaire de demande de congé en ligne","🔍 n8n consulte automatiquement le planning pour détecter les conflits d'équipe","🤖 L'IA évalue si l'équipe peut fonctionner sans cet employé pendant la période","✅ Email de validation (ou demande de report motivée) envoyé automatiquement","📅 Mise à jour instantanée du planning partagé de l'équipe"]},
+    {title:"Suivi et relance automatique du pipeline commercial",desc:"Chaque prospect dans votre CRM reçoit des messages de suivi personnalisés selon son stade d'avancement, sans que vous ayez à y penser.",tools:["Notion / Airtable","Gmail","OpenRouter AI"],impact:"Conversion prospects +35%",steps:["⏰ Vérification quotidienne des prospects sans activité récente dans le CRM","📋 Récupération du profil complet : secteur, taille, stade de négociation, historique","🤖 L'IA génère un message de relance adapté au profil et au stade du prospect","📧 Envoi automatique de l'email ou SMS personnalisé","✏️ Mise à jour du CRM avec la date de dernier contact"]},
+    {title:"Veille concurrentielle hebdomadaire automatique",desc:"Chaque lundi, vous recevez un résumé de toutes les actualités de votre secteur et des actions de vos concurrents, avec une analyse stratégique.",tools:["RSS / Scraping Web","OpenRouter AI","Email"],impact:"2h de veille → 5 minutes",steps:["🔍 Collecte automatique chaque dimanche soir sur les sources définies (actualités, sites concurrents...)","📰 Agrégation de tous les articles et publications pertinents","🤖 L'IA lit tout, filtre l'essentiel et identifie les signaux stratégiques importants","📝 Génération d'un résumé structuré avec niveau d'importance pour chaque information","📧 Envoi du rapport de veille chaque lundi matin avant votre arrivée au bureau"]},
+    {title:"Onboarding automatique des nouveaux employés",desc:"Dès qu'un nouvel employé est ajouté dans le système, tout se déclenche : documents envoyés, accès créés, programme d'intégration personnalisé sur 4 semaines.",tools:["Google Forms","Gmail","Notion","OpenRouter AI"],impact:"Intégration parfaite sans effort",steps:["✅ Ajout du nouvel employé dans le système RH ou le formulaire d'entrée","📦 Génération automatique du pack de bienvenue personnalisé par l'IA","📧 Envoi immédiat de tous les documents, contrats et informations d'accès","📋 Création des tâches d'intégration semaine par semaine dans Notion","⏰ Rappels et check-ins automatiques envoyés au manager et à l'employé semaines 1 à 4"]}
+  ]},
+  juriste:{icon:"⚖️",label:"Juriste / Avocat",automations:[
+    {title:"Analyse et résumé automatique de contrats PDF",desc:"Déposez un contrat dans Google Drive et en 2 minutes, vous recevez un résumé structuré avec les parties, obligations, clauses critiques et risques identifiés.",tools:["Google Drive","OpenRouter AI","Notion"],impact:"50 pages analysées en 2 minutes",steps:["📂 Dépôt du contrat PDF dans un dossier Google Drive dédié","🔔 n8n détecte automatiquement le nouveau fichier déposé","📄 Extraction complète du texte du document PDF","🤖 L'IA analyse la structure juridique, identifie les clauses importantes et les risques potentiels","📝 Un résumé structuré est créé dans Notion avec un code couleur (vert/orange/rouge) selon le niveau de risque"]},
+    {title:"Veille juridique quotidienne personnalisée",desc:"Chaque matin, vous recevez un digest des nouvelles lois, jurisprudences et décrets dans vos domaines de spécialité, avec une analyse d'impact pour votre pratique.",tools:["Scraping Web","OpenRouter AI","Email / Telegram"],impact:"Jamais aucune loi manquée",steps:["🕐 Collecte automatique chaque nuit sur Légifrance, Journal Officiel et vos sources spécialisées","🔍 Filtrage intelligent selon vos domaines juridiques définis (droit des affaires, droit social, etc.)","🤖 L'IA analyse chaque publication et évalue son impact sur votre pratique professionnelle","📊 Classement par ordre d'urgence et d'importance","📧 Envoi du digest structuré chaque matin avant votre arrivée au cabinet"]},
+    {title:"Génération automatique de courriers et actes types",desc:"Remplissez un formulaire de 3 minutes avec les données du dossier et recevez un document juridique professionnel, personnalisé et prêt à relire.",tools:["Google Forms","OpenRouter AI","Google Docs"],impact:"Document prêt en 3 minutes",steps:["📝 Remplissage d'un formulaire simplifié avec les informations du dossier (parties, faits, objet)","🔄 n8n transmet les données structurées à l'IA avec le type de document souhaité","🤖 L'IA génère le document juridique (mise en demeure, contrat, conclusions) en respectant les formules légales","📄 Création automatique dans Google Docs avec la mise en page professionnelle du cabinet","📧 Notification au juriste pour relecture et signature finale"]},
+    {title:"Alertes automatiques des échéances de dossiers",desc:"Plus aucune date limite manquée. n8n surveille tous vos dossiers et vous alerte à J-30, J-7 et J-1 des échéances judiciaires importantes.",tools:["Notion / Airtable","OpenRouter AI","Gmail"],impact:"Zéro délai judiciaire manqué",steps:["⏰ Vérification automatique quotidienne de toutes les échéances dans votre base de dossiers","🔍 Identification des délais critiques : délais de procédure, prescriptions, audiences","⚠️ Alertes progressives envoyées : J-30 (information), J-7 (attention), J-1 (urgent)","🤖 L'IA rédige un rappel contextualisé avec les actions à effectuer pour chaque dossier","📧 Alerte envoyée simultanément au juriste responsable et à son assistant"]},
+    {title:"Chatbot juridique de premier niveau pour les clients",desc:"Un assistant IA disponible 24h/24 sur Telegram ou votre site web répond aux questions courantes, qualifie les urgences et prend les rendez-vous automatiquement.",tools:["Telegram / Site web","OpenRouter AI","Calendly"],impact:"Clients qualifiés automatiquement",steps:["💬 Client pose une question juridique sur Telegram ou via le widget de votre site","🤖 L'IA répond de manière professionnelle avec les informations de premier niveau + disclaimer obligatoire","🔍 Qualification automatique du besoin : domaine juridique, urgence, type de prestation","📅 Si nécessaire, proposition de créneaux de rendez-vous via Calendly","📋 Fiche dossier pré-remplie transmise au juriste avant la consultation"]}
+  ]},
+  commercial:{icon:"🤝",label:"Commercial / Sales",automations:[
+    {title:"Prospection automatique LinkedIn et Email",desc:"n8n identifie des prospects qualifiés selon vos critères, l'IA génère des messages d'approche ultra-personnalisés et lance des séquences de suivi sur 14 jours.",tools:["Apollo.io / LinkedIn","OpenRouter AI","Gmail"],impact:"50 prospects/jour sans effort",steps:["🎯 Définition de votre profil client idéal (secteur, taille, poste, localisation)","🔍 Collecte automatique de prospects qualifiés correspondant à vos critères","🤖 L'IA analyse chaque profil individuellement et rédige un message d'approche ultra-personnalisé","📧 Envoi du premier message d'approche par email ou LinkedIn","🔄 Séquence de suivi automatique sur 14 jours si pas de réponse (3 relances espacées)"]},
+    {title:"Scoring et qualification automatique des leads entrants",desc:"Chaque nouveau lead est analysé par l'IA qui lui attribue un score de 1 à 10 selon son potentiel, et l'assigne au bon commercial avec toutes les informations.",tools:["Google Forms / Email","OpenRouter AI","CRM Notion"],impact:"Priorité aux leads à fort potentiel",steps:["📥 Nouveau lead reçu via formulaire, email ou landing page","🔍 Enrichissement automatique du profil (recherche de l'entreprise, secteur, taille...)","🤖 L'IA évalue le potentiel selon vos critères : budget estimé, urgence, adéquation avec votre offre","🏆 Attribution d'un score de 1 à 10 et classement automatique dans le CRM","🔔 Alerte immédiate au bon commercial avec la fiche complète du lead et les prochaines actions suggérées"]},
+    {title:"Génération automatique de propositions commerciales",desc:"Après un rendez-vous, remplissez un formulaire de 5 minutes et recevez une proposition commerciale professionnelle et personnalisée prête à envoyer.",tools:["Google Forms","OpenRouter AI","Google Docs"],impact:"Devis professionnel en 5 minutes",steps:["📝 Remplissage du formulaire post-rendez-vous : besoins client, budget, délai, contexte","📋 Récupération automatique du template commercial et des données du prospect","🤖 L'IA rédige la proposition en adaptant le contenu au contexte spécifique du prospect","📄 Génération automatique du PDF professionnel avec votre logo et mise en page","📧 Envoi automatique au prospect avec lien de suivi pour savoir s'il l'a ouvert"]},
+    {title:"Nurturing automatique des prospects froids sur 6 mois",desc:"Les prospects qui n'ont pas converti entrent dans une séquence de 6 mois avec du contenu de valeur envoyé régulièrement pour rester présent à leur esprit.",tools:["Gmail","OpenRouter AI","Airtable"],impact:"20% des froids se réactivent",steps:["❄️ Prospect classé 'froid' ou 'pas maintenant' dans votre CRM","📬 Entrée automatique dans la séquence de nurturing sur 6 mois","🤖 L'IA sélectionne le contenu le plus pertinent selon le secteur et les intérêts du prospect","📧 Envoi d'un email de valeur à intervalles optimaux (J+7, J+21, J+45, J+90...)","🔔 Dès que le prospect ouvre plusieurs emails de suite → alerte au commercial pour relancer à chaud"]},
+    {title:"Rapport de performance commerciale hebdomadaire",desc:"Chaque vendredi soir, un rapport complet s'envoie automatiquement : chiffres de la semaine, état du pipeline, prévisions et recommandations IA pour la semaine suivante.",tools:["CRM / Google Sheets","OpenRouter AI","Gmail / Slack"],impact:"Manager informé sans réunion",steps:["⏰ Déclencheur automatique chaque vendredi à 18h précises","📊 Collecte de toutes les données commerciales de la semaine depuis le CRM","🤖 L'IA analyse les performances, compare aux objectifs et identifie les points de blocage","📝 Génération du rapport avec les wins, les deals en cours et les recommandations concrètes","📧 Envoi automatique à l'équipe commerciale et à la direction avant le weekend"]}
+  ]}
+};
+
+/* ─── DATA FAQ ─── */
+const faqData=[
+  {q:"Mon terminal affiche une erreur en tapant 'npx n8n' — que faire ?",a:"Vérifiez d'abord que Node.js est bien installé en tapant 'node --version' dans le terminal. Si ça affiche un numéro de version (ex: v20.0.0), Node.js est ok. Sinon, recommencez l'installation de Node.js depuis nodejs.org. Si Node.js est installé mais npx n8n échoue, essayez de fermer et rouvrir le terminal, puis retapez la commande."},
+  {q:"Je ne vois pas 'n8n ready' s'afficher, que se passe-t-il ?",a:"La première installation peut prendre jusqu'à 5 minutes car n8n doit télécharger tous ses composants. Patientez et ne fermez pas le terminal. Si après 10 minutes rien ne se passe, fermez le terminal, rouvrez-en un nouveau et retapez 'npx n8n'."},
+  {q:"Ma clé API OpenRouter affiche une erreur 'Unauthorized' dans n8n",a:"Vérifiez deux choses : 1) Dans le credential n8n, le champ 'Value' doit être exactement 'Bearer sk-or-v1-VOTRE_CLÉ' avec un espace entre 'Bearer' et la clé. 2) Assurez-vous de ne pas avoir de espaces avant ou après votre clé. Copiez-recollez-la directement depuis OpenRouter."},
+  {q:"Mes automatisations ne se déclenchent plus quand je rallume mon PC",a:"C'est normal avec l'installation locale — vous devez relancer n8n à chaque démarrage du PC. Ouvrez le terminal et retapez 'npx n8n'. Pour éviter ça définitivement, passez à l'installation sur VPS Hostinger qui tourne 24h/24 automatiquement."},
+  {q:"Le site localhost:5678 ne s'ouvre pas dans mon navigateur",a:"Vérifiez que la fenêtre terminal avec n8n est toujours ouverte et affiche 'n8n ready'. Si vous l'avez fermée, n8n s'est arrêté. Rouvrez le terminal et retapez 'npx n8n'. Attendez de voir 'n8n ready' avant de retourner sur localhost:5678."},
+  {q:"Comment importer un fichier JSON dans n8n si je ne vois pas le bouton Import ?",a:"Dans n8n, allez sur la page 'Workflows' (menu gauche). En haut à droite, cherchez un bouton avec une icône de flèche vers le haut, ou cliquez sur les '...' (trois points) à côté du bouton 'New Workflow'. L'option 'Import from File' devrait apparaître."},
+  {q:"L'IA répond en anglais alors que je veux du français",a:"Il suffit d'ajouter une instruction au début de votre message à l'IA. Dans le champ 'content' de votre requête JSON, ajoutez au début : 'Réponds uniquement en français. Voici ma demande : ...'"},
+  {q:"Comment savoir si mon workflow fonctionne correctement ?",a:"Dans n8n, ouvrez votre workflow et regardez les nœuds. Quand un workflow s'exécute avec succès, chaque nœud affiche un nombre vert (ex: '1 item'). Si un nœud est rouge, cliquez dessus pour lire le message d'erreur. La plupart du temps, c'est une clé API manquante ou une erreur de configuration corrigeable en quelques secondes."},
+  {q:"Mon VPS Hostinger n'accepte pas ma connexion SSH",a:"Attendez 5-10 minutes après l'achat — le serveur a besoin de temps pour démarrer. Vérifiez ensuite que vous tapez la bonne adresse IP (visible dans votre tableau de bord Hostinger). Si le problème persiste, le support Hostinger est disponible 24h/24 en chat sur leur site."},
+  {q:"Est-ce que mes données sont sécurisées avec ces outils ?",a:"Avec l'installation locale, toutes vos données restent sur votre ordinateur — elles ne partent jamais sur Internet (sauf la partie envoyée à l'IA). Avec le VPS, vos données sont sur votre serveur privé que vous seul contrôlez. OpenRouter ne conserve pas vos données selon leur politique de confidentialité. Évitez tout de même d'envoyer des informations très sensibles (numéros de sécurité sociale, mots de passe) à l'IA."}
+];
+
+/* ─── NAVIGATION ─── */
+let currentSection = 'cover';
+let currentMetier = 'comptable';
+
+function go(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  window.scrollTo({top:0,behavior:'smooth'});
+  currentSection = id;
+  updateProgress(id);
+  updateBreadcrumb(id);
+  if(id==='auto') renderAuto();
+  if(id==='faq') renderFaq();
+}
+
+const progressMap={cover:5,vocab:15,quoi:25,auto:45,'openrouter':58,'install-local':72,'install-vps':82,'premier-workflow':92,faq:100};
+const titleMap={cover:'Accueil',vocab:'Vocabulaire',quoi:"Comprendre",auto:'Les 20 Automatisations','openrouter':'OpenRouter Gratuit','install-local':'Installation PC','install-vps':'Installation VPS','premier-workflow':'Premier Test',faq:'FAQ'};
+
+function updateProgress(id){
+  document.getElementById('prog').style.width=(progressMap[id]||5)+'%';
+}
+function updateBreadcrumb(id){
+  document.getElementById('readLabel').textContent='📖 '+( titleMap[id]||'Guide');
+}
+
+/* ─── STEP TOGGLE ─── */
+function toggleStep(header){
+  const block = header.parentElement;
+  block.classList.toggle('open');
+}
+
+/* ─── AUTO RENDER ─── */
+function renderAuto(){
+  const m = autoData[currentMetier];
+  let h='<div class="auto-grid">';
+  m.automations.forEach((a,i)=>{
+    const n=a.steps.length;
+    h+=`<div class="auto-card" id="ac-${i}" onclick="toggleAc(${i})">
+      <div class="ac-header">
+        <div class="ac-num">${i+1}</div>
+        <div style="flex:1">
+          <div class="ac-title">${a.title}</div>
+          <div class="ac-desc">${a.desc}</div>
+          <div class="ac-tools">
+            ${a.tools.map(t=>`<span class="tool-pill">${t}</span>`).join('')}
+            <span class="impact-pill">${a.impact}</span>
+          </div>
+        </div>
+        <div class="ac-toggle">▼</div>
+      </div>
+      <div class="ac-body">
+        <div class="wf-title">⚡ Comment ça marche — étapes du workflow</div>
+        ${a.steps.map((s,si)=>`
+          <div class="wf-step">
+            <div class="wf-dot ${si===0?'s':si===n-1?'e':'m'}">${si+1}</div>
+            <span>${s}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  h+='</div>';
+  document.getElementById('autoZone').innerHTML=h;
+}
+
+function toggleAc(i){
+  document.getElementById('ac-'+i).classList.toggle('open');
+}
+
+function switchM(id){
+  currentMetier=id;
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('mt-'+id).classList.add('active');
+  renderAuto();
+}
+
+/* ─── FAQ RENDER ─── */
+function renderFaq(){
+  let h='';
+  faqData.forEach((f,i)=>{
+    h+=`<div class="step-block" id="faq-${i}">
+      <div class="step-header" onclick="toggleFaq(${i})">
+        <div class="step-num-circle" style="background:#6366f1;box-shadow:0 4px 12px rgba(99,102,241,0.3);">?</div>
+        <div class="step-title-wrap">
+          <div class="step-title">${f.q}</div>
+        </div>
+        <div class="step-toggle">▼</div>
+      </div>
+      <div class="step-body">
+        <div style="padding-top:16px; font-size:15px; font-weight:500; color:#ccc; line-height:1.7;">${f.a}</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('faqZone').innerHTML=h;
+}
+
+function toggleFaq(i){
+  document.getElementById('faq-'+i).classList.toggle('open');
+}
+
+/* ─── INIT ─── */
+renderAuto();
+</script>
+</body>
+</html>
