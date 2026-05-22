@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>n8n + Claude IA — Pack Digital Professionnel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --orange: #FF4D00;
+    --orange-light: rgba(255,77,0,0.12);
+    --orange-border: rgba(255,77,0,0.35);
+    --green: #10b981;
+    --green-light: rgba(16,185,129,0.1);
+    --bg: #0c0c0c;
+    --surface: #131313;
+    --surface2: #1a1a1a;
+    --border: #222;
+    --text: #f0ede8;
+    --muted: #777;
+    --subtle: #444;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: #0d0d0d;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo .badge {
+    display: inline-block;
+    background: var(--orange-light);
+    border: 1px solid var(--orange-border);
+    color: var(--orange);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 10px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .sidebar-logo h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .sidebar-logo h1 span { color: var(--orange); }
+
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+
+  .nav-section {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--subtle);
+    padding: 16px 12px 6px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-bottom: 2px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .nav-item.active { background: var(--orange-light); color: var(--orange); border: 1px solid var(--orange-border); }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--subtle);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ─── MAIN ─── */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ─── COVER ─── */
+  .cover {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,77,0,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(16,185,129,0.06) 0%, transparent 50%),
+                var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 72px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.02) 59px, rgba(255,255,255,0.02) 60px),
+      repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.02) 59px, rgba(255,255,255,0.02) 60px);
+    pointer-events: none;
+  }
+
+  .cover-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--orange-light);
+    border: 1px solid var(--orange-border);
+    color: var(--orange);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    width: fit-content;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .cover h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(48px, 6vw, 80px);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+
+  .cover h1 .accent { color: var(--orange); }
+
+  .cover-sub {
+    font-size: 20px;
+    color: var(--muted);
+    max-width: 580px;
+    margin-bottom: 48px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  .cover-stats {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--orange);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .cover-tags {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: #aaa;
+  }
+
+  .cover-version {
+    position: absolute;
+    bottom: 32px;
+    right: 48px;
+    font-size: 12px;
+    color: var(--subtle);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ─── PAGE LAYOUT ─── */
+  .page-content {
+    padding: 56px 72px;
+    max-width: 1000px;
+  }
+
+  .page-header {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  .page-desc {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 640px;
+    font-weight: 300;
+  }
+
+  /* ─── METIER TABS ─── */
+  .metier-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .metier-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .metier-tab:hover { border-color: var(--orange-border); color: var(--text); }
+  .metier-tab.active { background: var(--orange-light); border-color: var(--orange-border); color: var(--orange); }
+  .metier-tab .tab-icon { font-size: 18px; }
+
+  /* ─── AUTOMATION CARDS ─── */
+  .auto-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .auto-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .auto-card.open { border-color: var(--orange-border); }
+
+  .auto-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 22px 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .auto-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--orange);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Syne', sans-serif;
+    margin-top: 2px;
+  }
+
+  .auto-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    flex: 1;
+  }
+
+  .auto-desc {
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .auto-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tool-badge {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: #888;
+  }
+
+  .impact-badge {
+    background: var(--green-light);
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 600;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .toggle-btn {
+    margin-left: auto;
+    color: var(--subtle);
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform 0.25s;
+    align-self: center;
+  }
+
+  .auto-card.open .toggle-btn { transform: rotate(180deg); color: var(--orange); }
+
+  .auto-body {
+    display: none;
+    padding: 0 24px 24px;
+    border-top: 1px solid rgba(255,77,0,0.15);
+    margin: 0 0 0;
+  }
+
+  .auto-card.open .auto-body { display: block; }
+
+  .workflow-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin: 20px 0 14px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .workflow-steps { display: flex; flex-direction: column; gap: 10px; }
+
+  .step-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+
+  .step-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: white;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .step-dot.start { background: var(--orange); }
+  .step-dot.mid { background: #333; }
+  .step-dot.end { background: var(--green); }
+
+  .step-text { font-size: 13.5px; color: #ccc; }
+
+  /* ─── INSTALLATION ─── */
+  .install-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .install-card {
+    border-radius: 20px;
+    padding: 28px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+  }
+
+  .install-card.selected {
+    border-color: var(--orange-border);
+    background: var(--orange-light);
+  }
+
+  .install-icon { font-size: 40px; margin-bottom: 12px; }
+
+  .install-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .install-badge {
+    display: inline-block;
+    border-radius: 100px;
+    padding: 3px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .badge-warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; }
+  .badge-ok { background: var(--green-light); border: 1px solid rgba(16,185,129,0.3); color: var(--green); }
+
+  .install-desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+
+  .pro-con-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .pro-list, .con-list { font-size: 12.5px; }
+  .pro-list-title { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; font-family: 'Syne', sans-serif; }
+  .pro-list-title.green { color: var(--green); }
+  .pro-list-title.red { color: #ef4444; }
+  .pro-list li, .con-list li { list-style: none; color: #999; margin-bottom: 5px; }
+  .pro-list li::before { content: '✓ '; color: var(--green); }
+  .con-list li::before { content: '✗ '; color: #ef4444; }
+
+  .install-steps-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  .install-steps-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--orange);
+  }
+
+  .install-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid #1c1c1c;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+
+  .install-step-num {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .install-step-text {
+    font-size: 14.5px;
+    color: #ddd;
+    padding-top: 5px;
+    line-height: 1.5;
+  }
+
+  .alert-box {
+    border-radius: 14px;
+    padding: 18px 22px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .alert-warn { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.25); color: #f59e0b; }
+  .alert-ok { background: var(--green-light); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
+
+  /* ─── OPENROUTER ─── */
+  .model-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .model-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .model-card:hover { border-color: rgba(16,185,129,0.3); }
+
+  .model-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .model-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    background: var(--green-light);
+    border: 1px solid rgba(16,185,129,0.2);
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: inline-block;
+    word-break: break-all;
+  }
+
+  .model-use { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+  .model-speed { font-size: 12px; color: var(--green); font-weight: 600; }
+
+  .code-block {
+    background: #080808;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 22px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #a6e3a1;
+    overflow-x: auto;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .code-block .comment { color: #585b70; }
+  .code-block .key { color: #89b4fa; }
+  .code-block .value { color: #a6e3a1; }
+  .code-block .string { color: #f9e2af; }
+
+  .copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #aaa;
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { background: rgba(255,255,255,0.12); color: white; }
+
+  /* ─── TABLE OF CONTENTS ─── */
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .toc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+  }
+
+  .toc-card:hover { border-color: var(--orange-border); background: var(--orange-light); }
+
+  .toc-icon { font-size: 28px; }
+
+  .toc-info {}
+  .toc-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .toc-sub { font-size: 12px; color: var(--muted); }
+
+  /* ─── PROGRESS BAR (TOP) ─── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 260px; right: 0;
+    height: 3px;
+    background: var(--border);
+    z-index: 200;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--orange);
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .sidebar { width: 200px; }
+    .main { margin-left: 200px; }
+    .progress-bar { left: 200px; }
+    .page-content { padding: 40px 32px; }
+    .cover { padding: 60px 40px; }
+    .install-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .progress-bar { left: 0; }
+    .page-content { padding: 28px 20px; }
+    .cover { padding: 48px 24px; }
+  }
+
+  /* ─── PRINT ─── */
+  @media print {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .progress-bar { display: none; }
+    .section { display: block !important; page-break-after: always; }
+    .auto-body { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="badge">Pack Digital</div>
+    <h1>n8n + <span>Claude</span><br>Automatisez.</h1>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Navigation</div>
+    <a class="nav-item active" onclick="showSection('cover')">
+      <span class="icon">🏠</span> Accueil
+    </a>
+    <a class="nav-item" onclick="showSection('sommaire')">
+      <span class="icon">📋</span> Sommaire
+    </a>
+    <div class="nav-section">Métiers</div>
+    <a class="nav-item" onclick="showSection('automations'); switchMetier('comptable')">
+      <span class="icon">🧮</span> Comptable
+    </a>
+    <a class="nav-item" onclick="showSection('automations'); switchMetier('gerant')">
+      <span class="icon">💼</span> Gérant PME
+    </a>
+    <a class="nav-item" onclick="showSection('automations'); switchMetier('juriste')">
+      <span class="icon">⚖️</span> Juriste / Avocat
+    </a>
+    <a class="nav-item" onclick="showSection('automations'); switchMetier('commercial')">
+      <span class="icon">🤝</span> Commercial
+    </a>
+    <div class="nav-section">Installation</div>
+    <a class="nav-item" onclick="showSection('install')">
+      <span class="icon">🚀</span> Guide d'installation
+    </a>
+    <a class="nav-item" onclick="showSection('openrouter')">
+      <span class="icon">🤖</span> OpenRouter Gratuit
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    Version 1.0 · Mai 2026<br>
+    Formation n8n + Claude IA
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- COVER -->
+  <section class="section active" id="section-cover">
+    <div class="cover">
+      <div class="cover-eyebrow">✦ Produit Digital Premium · Formation & Outils</div>
+      <h1>Automatisez.<br><span class="accent">Libérez votre<br>temps.</span></h1>
+      <p class="cover-sub">Pack complet n8n + Claude IA — 20 automatisations professionnelles concrètes pour 4 métiers. Zéro abonnement IA grâce à OpenRouter gratuit.</p>
+      <div class="cover-stats">
+        <div class="stat">
+          <div class="stat-num">20</div>
+          <div class="stat-label">Automatisations incluses</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">4</div>
+          <div class="stat-label">Métiers couverts</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">0€</div>
+          <div class="stat-label">Coût IA mensuel</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Options d'installation</div>
+        </div>
+      </div>
+      <div class="cover-tags">
+        <span class="tag">🤖 OpenRouter Free Models</span>
+        <span class="tag">⚡ n8n Open Source</span>
+        <span class="tag">💻 Local ou VPS Hostinger</span>
+        <span class="tag">📦 Workflows JSON inclus</span>
+        <span class="tag">🔁 24h/24 sur VPS</span>
+      </div>
+      <div class="cover-version">v1.0 — n8n + Claude IA Pack</div>
+    </div>
+  </section>
+
+  <!-- SOMMAIRE -->
+  <section class="section" id="section-sommaire">
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-eyebrow">Sommaire</div>
+        <h2 class="page-title">Ce que contient ce pack</h2>
+        <p class="page-desc">Cliquez sur une section pour y accéder directement.</p>
+      </div>
+      <div class="toc-grid">
+        <a class="toc-card" onclick="showSection('automations'); switchMetier('comptable')">
+          <span class="toc-icon">🧮</span>
+          <div class="toc-info">
+            <div class="toc-title">5 Automatisations Comptable</div>
+            <div class="toc-sub">Factures, rapports, relances, reçus, assistant IA</div>
+          </div>
+        </a>
+        <a class="toc-card" onclick="showSection('automations'); switchMetier('gerant')">
+          <span class="toc-icon">💼</span>
+          <div class="toc-info">
+            <div class="toc-title">5 Automatisations Gérant PME</div>
+            <div class="toc-sub">Dashboard, congés, CRM, veille, onboarding</div>
+          </div>
+        </a>
+        <a class="toc-card" onclick="showSection('automations'); switchMetier('juriste')">
+          <span class="toc-icon">⚖️</span>
+          <div class="toc-info">
+            <div class="toc-title">5 Automatisations Juriste</div>
+            <div class="toc-sub">Contrats PDF, veille juridique, actes, dossiers, chatbot</div>
+          </div>
+        </a>
+        <a class="toc-card" onclick="showSection('automations'); switchMetier('commercial')">
+          <span class="toc-icon">🤝</span>
+          <div class="toc-info">
+            <div class="toc-title">5 Automatisations Commercial</div>
+            <div class="toc-sub">Prospection, scoring leads, devis, nurturing, reporting</div>
+          </div>
+        </a>
+        <a class="toc-card" onclick="showSection('install')">
+          <span class="toc-icon">💻</span>
+          <div class="toc-info">
+            <div class="toc-title">Installation Locale</div>
+            <div class="toc-sub">PC allumé requis — gratuit et rapide à démarrer</div>
+          </div>
+        </a>
+        <a class="toc-card" onclick="showSection('install')">
+          <span class="toc-icon">☁️</span>
+          <div class="toc-info">
+            <div class="toc-title">VPS Hostinger 24h/24</div>
+            <div class="toc-sub">Tourne même PC éteint — solution professionnelle</div>
+          </div>
+        </a>
+        <a class="toc-card" onclick="showSection('openrouter')">
+          <span class="toc-icon">🤖</span>
+          <div class="toc-info">
+            <div class="toc-title">OpenRouter — IA 100% Gratuite</div>
+            <div class="toc-sub">4 modèles free · clé API · config n8n</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTOMATIONS -->
+  <section class="section" id="section-automations">
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-eyebrow">Les 20 Automatisations</div>
+        <h2 class="page-title">5 workflows par métier</h2>
+        <p class="page-desc">Chaque automatisation est concrète, installable et compatible avec les modèles IA gratuits d'OpenRouter.</p>
+      </div>
+
+      <div class="metier-tabs" id="metierTabs">
+        <div class="metier-tab active" id="tab-comptable" onclick="switchMetier('comptable')">
+          <span class="tab-icon">🧮</span> Comptable
+        </div>
+        <div class="metier-tab" id="tab-gerant" onclick="switchMetier('gerant')">
+          <span class="tab-icon">💼</span> Gérant PME
+        </div>
+        <div class="metier-tab" id="tab-juriste" onclick="switchMetier('juriste')">
+          <span class="tab-icon">⚖️</span> Juriste / Avocat
+        </div>
+        <div class="metier-tab" id="tab-commercial" onclick="switchMetier('commercial')">
+          <span class="tab-icon">🤝</span> Commercial
+        </div>
+      </div>
+
+      <div id="autoContent"></div>
+    </div>
+  </section>
+
+  <!-- INSTALLATION -->
+  <section class="section" id="section-install">
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-eyebrow">Installation</div>
+        <h2 class="page-title">2 façons d'installer n8n</h2>
+        <p class="page-desc">Choisissez la méthode qui correspond à votre situation. Les deux sont compatibles avec tous les workflows de ce pack.</p>
+      </div>
+
+      <div class="install-grid">
+        <div class="install-card selected" id="card-local" onclick="selectInstall('local')">
+          <div class="install-icon">💻</div>
+          <div class="install-name">Installation Locale</div>
+          <div class="install-badge badge-warn">⚠ PC Doit Rester Allumé</div>
+          <p class="install-desc">n8n s'installe directement sur votre ordinateur. Totalement gratuit, vos données restent chez vous. Idéal pour débuter et tester vos workflows.</p>
+          <div class="pro-con-row">
+            <ul class="pro-list">
+              <div class="pro-list-title green">Avantages</div>
+              <li>100% gratuit</li>
+              <li>Données privées</li>
+              <li>Démarrage rapide</li>
+            </ul>
+            <ul class="con-list">
+              <div class="pro-list-title red">Limites</div>
+              <li>PC doit rester allumé</li>
+              <li>S'arrête si PC s'éteint</li>
+              <li>Dépend du réseau</li>
+            </ul>
+          </div>
+        </div>
+        <div class="install-card" id="card-hostinger" onclick="selectInstall('hostinger')">
+          <div class="install-icon">☁️</div>
+          <div class="install-name">VPS Hostinger</div>
+          <div class="install-badge badge-ok">✅ 24h/24 — 7j/7</div>
+          <p class="install-desc">Déployez n8n sur un serveur VPS. Vos automatisations tournent en permanence, même PC éteint. La solution professionnelle recommandée.</p>
+          <div class="pro-con-row">
+            <ul class="pro-list">
+              <div class="pro-list-title green">Avantages</div>
+              <li>Tourne 24h/24 sans PC</li>
+              <li>Accès depuis partout</li>
+              <li>Fiable et professionnel</li>
+            </ul>
+            <ul class="con-list">
+              <div class="pro-list-title red">Limites</div>
+              <li>~5€/mois</li>
+              <li>Quelques étapes SSH</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div id="installSteps"></div>
+    </div>
+  </section>
+
+  <!-- OPENROUTER -->
+  <section class="section" id="section-openrouter">
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-eyebrow">IA Gratuite</div>
+        <h2 class="page-title">OpenRouter — 0€ par mois</h2>
+        <p class="page-desc">Accédez à des modèles IA puissants entièrement gratuits. Pas de carte bancaire. Vos automatisations tournent sans aucun coût IA.</p>
+      </div>
+
+      <div style="background: var(--green-light); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 20px 24px; margin-bottom: 32px; display: flex; align-items: center; gap: 16px;">
+        <span style="font-size: 32px;">✅</span>
+        <div>
+          <div style="font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 4px;">Modèles gratuits disponibles dès maintenant</div>
+          <div style="font-size: 13.5px; color: #888;">Ces modèles sont étiquetés <strong style="color: var(--green);">:free</strong> sur OpenRouter. Aucune limite cachée, aucun abonnement requis.</div>
+        </div>
+      </div>
+
+      <div class="model-grid">
+        <div class="model-card">
+          <div class="model-name">Mistral 7B Instruct</div>
+          <div class="model-id">mistralai/mistral-7b-instruct:free</div>
+          <div class="model-use">Texte général, emails, analyses</div>
+          <div class="model-speed">⚡ Très rapide · Recommandé</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">Llama 3.1 8B Instruct</div>
+          <div class="model-id">meta-llama/llama-3.1-8b-instruct:free</div>
+          <div class="model-use">Rédaction, résumés, Q&amp;A</div>
+          <div class="model-speed">⚡ Rapide · Très polyvalent</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">Gemma 2 9B IT</div>
+          <div class="model-id">google/gemma-2-9b-it:free</div>
+          <div class="model-use">Analyse, classification, extraction</div>
+          <div class="model-speed">⚡ Rapide · Précis</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">Qwen 2.5 7B Instruct</div>
+          <div class="model-id">qwen/qwen-2.5-7b-instruct:free</div>
+          <div class="model-use">Multilingue, Excel, données</div>
+          <div class="model-speed">⚡ Rapide · Excellent en FR</div>
+        </div>
+      </div>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; margin-bottom: 24px;">
+        <div style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 24px;">🔑 Obtenir votre clé API OpenRouter (5 minutes)</div>
+        <div class="install-step">
+          <div class="install-step-num">1</div>
+          <div class="install-step-text"><strong>Créer un compte gratuit</strong> — Allez sur <span style="color: var(--orange);">openrouter.ai</span> → "Sign Up". Email ou Google, c'est suffisant.</div>
+        </div>
+        <div class="install-step">
+          <div class="install-step-num">2</div>
+          <div class="install-step-text"><strong>Générer une clé API</strong> — Dans le tableau de bord, cliquez sur "Keys" → "Create Key". Nommez-la <code style="color: var(--green); background: #111; padding: 2px 6px; border-radius: 4px;">n8n-automation</code>.</div>
+        </div>
+        <div class="install-step">
+          <div class="install-step-num">3</div>
+          <div class="install-step-text"><strong>Copier la clé</strong> — Elle commence par <code style="color: var(--green); background: #111; padding: 2px 6px; border-radius: 4px;">sk-or-v1-...</code>. Gardez-la précieusement, elle ne s'affiche qu'une fois.</div>
+        </div>
+        <div class="install-step">
+          <div class="install-step-num">4</div>
+          <div class="install-step-text"><strong>Dans n8n</strong> — Créez une credential de type "HTTP Header Auth". Nom du header : <code style="color: var(--green); background: #111; padding: 2px 6px; border-radius: 4px;">Authorization</code>, valeur : <code style="color: var(--green); background: #111; padding: 2px 6px; border-radius: 4px;">Bearer sk-or-v1-VOTRE_CLÉ</code>.</div>
+        </div>
+        <div class="install-step">
+          <div class="install-step-num">5</div>
+          <div class="install-step-text"><strong>Tester</strong> — Utilisez le nœud "HTTP Request" dans n8n pour envoyer une requête de test. Si vous recevez une réponse JSON, tout est configuré !</div>
+        </div>
+      </div>
+
+      <div style="font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 16px;">⚙️ Configuration n8n — Copier-Coller</div>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode()">Copier</button>
+<span class="comment">// Nœud : HTTP Request dans n8n</span>
+<span class="key">URL :</span>     <span class="string">https://openrouter.ai/api/v1/chat/completions</span>
+<span class="key">Méthode :</span> <span class="value">POST</span>
+<span class="key">Header :</span>  <span class="value">Authorization: Bearer sk-or-v1-VOTRE_CLÉ</span>
+
+<span class="comment">// Body (JSON) :</span>
+{
+  <span class="key">"model"</span>: <span class="string">"mistralai/mistral-7b-instruct:free"</span>,
+  <span class="key">"messages"</span>: [
+    {
+      <span class="key">"role"</span>: <span class="string">"system"</span>,
+      <span class="key">"content"</span>: <span class="string">"Tu es un assistant professionnel expert."</span>
+    },
+    {
+      <span class="key">"role"</span>: <span class="string">"user"</span>,
+      <span class="key">"content"</span>: <span class="string">"{{ $json.prompt }}"</span>
+    }
+  ]
+}
+
+<span class="comment">// Réponse : data.choices[0].message.content</span></div>
+
+      <div class="alert-box alert-ok">
+        💡 <strong>Astuce :</strong> Pour changer de modèle, modifiez simplement la valeur du champ <code>"model"</code>. Tous les modèles listés ci-dessus sont gratuits et fonctionnent avec exactement la même configuration.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const data = {
+  comptable: {
+    icon: "🧮", label: "Comptable",
+    automations: [
+      {
+        title: "Traitement automatique des factures entrantes",
+        desc: "Chaque facture reçue par email est automatiquement extraite, analysée par l'IA, catégorisée et ajoutée à un tableau Google Sheets avec TVA, montant HT/TTC et fournisseur.",
+        tools: ["Gmail / Outlook", "OpenRouter AI", "Google Sheets"],
+        impact: "Économise 3h/semaine",
+        steps: ["Email reçu avec pièce jointe PDF", "n8n extrait le PDF attaché", "OpenRouter (Mistral-7B gratuit) lit et structure les données", "Ajout automatique dans Google Sheets", "Notification Slack ou Telegram au comptable"]
+      },
+      {
+        title: "Génération automatique de rapports financiers mensuels",
+        desc: "À la fin de chaque mois, n8n collecte toutes les données de dépenses, génère un rapport PDF structuré avec graphiques et l'envoie automatiquement au dirigeant.",
+        tools: ["Google Sheets", "OpenRouter AI", "Gmail"],
+        impact: "Rapport en 2 min au lieu de 4h",
+        steps: ["Déclencheur automatique le 1er du mois", "Récupération de toutes les données du Sheets", "L'IA génère l'analyse narrative et les insights", "Génération du rapport PDF structuré", "Envoi automatique par email au dirigeant"]
+      },
+      {
+        title: "Relance automatique des clients impayés",
+        desc: "Détecte les factures non payées après échéance et envoie des relances personnalisées et progressives (J+5, J+15, J+30) par email avec un ton adapté à chaque étape.",
+        tools: ["Google Sheets", "Gmail", "OpenRouter AI"],
+        impact: "Taux de recouvrement +40%",
+        steps: ["Vérification quotidienne automatique des échéances", "Identification des factures impayées dépassées", "L'IA rédige un email personnalisé selon l'étape (J+5, J+15, J+30)", "Envoi de la relance avec pièce jointe facture", "Mise à jour automatique du statut dans Sheets"]
+      },
+      {
+        title: "Extraction des dépenses depuis les reçus photo",
+        desc: "Le client prend en photo un ticket de caisse, l'envoie sur Telegram, et l'IA extrait automatiquement le montant, la catégorie et la date — zéro saisie manuelle.",
+        tools: ["Telegram Bot", "OpenRouter Vision", "Google Sheets"],
+        impact: "Zéro saisie manuelle",
+        steps: ["Photo du reçu envoyée via Telegram", "n8n récupère l'image automatiquement", "OpenRouter Vision analyse le ticket de caisse", "Extraction : montant, date, catégorie, TVA", "Enregistrement automatique dans Google Sheets"]
+      },
+      {
+        title: "Assistant comptable IA sur Telegram 24h/24",
+        desc: "Un chatbot comptable disponible en permanence qui répond aux questions fiscales courantes, calcule la TVA, explique les règles de déductibilité et rappelle les échéances.",
+        tools: ["Telegram Bot", "OpenRouter AI", "Google Sheets"],
+        impact: "Support client 24/7 sans coût",
+        steps: ["Client envoie une question sur Telegram", "n8n reçoit et transmet le message à OpenRouter", "L'IA répond avec contexte comptable professionnel", "Réponse envoyée immédiatement au client", "Log de la conversation sauvegardé dans Sheets"]
+      }
+    ]
+  },
+  gerant: {
+    icon: "💼", label: "Gérant PME",
+    automations: [
+      {
+        title: "Dashboard de pilotage PME en temps réel",
+        desc: "Agrège automatiquement les KPIs de votre PME (ventes, dépenses, trésorerie, leads) depuis toutes vos sources et génère un rapport quotidien envoyé chaque matin à 8h.",
+        tools: ["Google Sheets", "OpenRouter AI", "Telegram / Email"],
+        impact: "Vision 360° en 30 secondes",
+        steps: ["Déclencheur automatique chaque matin à 8h", "Collecte des données multi-sources (Sheets, CRM, etc.)", "L'IA analyse les tendances et anomalies", "Génération du rapport synthèse avec alertes", "Envoi sur email et Telegram du gérant"]
+      },
+      {
+        title: "Gestion automatisée des congés et absences",
+        desc: "Les employés soumettent leurs demandes via formulaire, l'IA vérifie les conflits d'agenda, envoie les validations et met à jour le planning automatiquement.",
+        tools: ["Google Forms", "Google Sheets", "Gmail", "OpenRouter AI"],
+        impact: "0 email de coordination RH",
+        steps: ["Employé remplit le formulaire de congé", "n8n vérifie le planning d'équipe en temps réel", "L'IA détecte les conflits potentiels", "Email de validation ou refus envoyé automatiquement", "Mise à jour instantanée du planning partagé"]
+      },
+      {
+        title: "Suivi et relance automatique du pipeline commercial",
+        desc: "Chaque prospect dans votre CRM reçoit des follow-ups personnalisés selon son stade, son secteur et son comportement. Votre pipeline se gère seul.",
+        tools: ["Airtable / Notion CRM", "Gmail", "OpenRouter AI"],
+        impact: "Conversion prospects +35%",
+        steps: ["Déclencheur selon stade CRM ou délai défini", "Récupération du profil complet du prospect", "L'IA génère un message ultra-personnalisé", "Envoi de l'email ou du SMS au prospect", "Mise à jour automatique du CRM"]
+      },
+      {
+        title: "Veille concurrentielle et sectorielle automatique",
+        desc: "Chaque semaine, n8n collecte les actualités de votre secteur et les publications de vos concurrents, et génère un résumé stratégique avec recommandations.",
+        tools: ["RSS / Web Scraping", "OpenRouter AI", "Notion / Email"],
+        impact: "2h de veille → 5 minutes",
+        steps: ["Collecte hebdomadaire de toutes les sources définies", "Agrégation des actualités sectorielles et concurrentielles", "L'IA synthétise et identifie les signaux importants", "Génération du rapport de veille stratégique", "Envoi au dirigeant chaque lundi matin"]
+      },
+      {
+        title: "Onboarding automatisé des nouveaux employés",
+        desc: "À l'arrivée d'un nouvel employé, tout se déclenche : envoi des documents RH, création des accès, programme d'intégration personnalisé et suivi sur 4 semaines.",
+        tools: ["Google Forms", "Gmail", "Notion", "OpenRouter AI"],
+        impact: "Onboarding parfait sans effort",
+        steps: ["Ajout du nouvel employé dans le système RH", "Génération du pack d'accueil personnalisé par l'IA", "Envoi automatique de tous les documents et accès", "Création des tâches d'intégration dans Notion", "Rappels et check-ins automatiques semaines 1 à 4"]
+      }
+    ]
+  },
+  juriste: {
+    icon: "⚖️", label: "Juriste / Avocat",
+    automations: [
+      {
+        title: "Analyse et résumé automatique de contrats PDF",
+        desc: "Déposez un contrat PDF dans Google Drive et en 2 minutes l'IA produit un résumé structuré : parties, obligations, clauses critiques, risques identifiés, points de négociation.",
+        tools: ["Google Drive", "OpenRouter AI", "Notion / Google Docs"],
+        impact: "50 pages analysées en 2 min",
+        steps: ["Dépôt du contrat PDF dans un dossier Google Drive défini", "n8n détecte automatiquement le nouveau fichier", "Extraction complète du texte du document", "OpenRouter analyse et structure les clauses et risques", "Résumé généré dans Notion avec alertes sur les clauses critiques"]
+      },
+      {
+        title: "Veille juridique automatique personnalisée",
+        desc: "Collecte quotidiennement les nouvelles lois, jurisprudences et décrets dans vos domaines de spécialité et vous envoie un digest matinal avec analyse d'impact.",
+        tools: ["Web Scraping / RSS", "OpenRouter AI", "Email / Telegram"],
+        impact: "Jamais de loi manquée",
+        steps: ["Scraping quotidien des sources officielles (Legifrance, JO...)", "Filtrage par domaine juridique défini en amont", "L'IA analyse l'impact potentiel pour votre pratique", "Résumé structuré avec niveau d'urgence généré", "Envoi du digest chaque matin par email"]
+      },
+      {
+        title: "Génération automatique de courriers et actes types",
+        desc: "À partir d'un formulaire simple, l'IA génère automatiquement des courriers de mise en demeure, des contrats standards ou des conclusions adaptés à la situation.",
+        tools: ["Google Forms", "OpenRouter AI", "Google Docs"],
+        impact: "Document prêt en 3 minutes",
+        steps: ["Remplissage d'un formulaire avec les données du dossier", "n8n transmet toutes les données à l'IA", "OpenRouter génère le document juridique personnalisé", "Création automatique dans Google Docs formaté", "Notification au juriste pour révision et signature finale"]
+      },
+      {
+        title: "Système de suivi et alertes des échéances dossiers",
+        desc: "Chaque dossier est suivi automatiquement : rappels d'échéances judiciaires, alertes de prescription, mise à jour des statuts et rapport mensuel d'avancement.",
+        tools: ["Notion / Airtable", "OpenRouter AI", "Gmail"],
+        impact: "Zéro délai judiciaire manqué",
+        steps: ["Vérification quotidienne de toutes les échéances dossiers", "Détection des délais critiques à J-30, J-7, J-1", "L'IA rédige un rappel contextualisé par dossier", "Alerte envoyée au juriste et à l'assistant", "Mise à jour automatique du statut dans le système de gestion"]
+      },
+      {
+        title: "Chatbot juridique de premier niveau pour les clients",
+        desc: "Un assistant IA disponible 24h/24 sur votre site ou Telegram répond aux questions juridiques courantes, qualifie les demandes urgentes et prend les rendez-vous.",
+        tools: ["Telegram / Widget Web", "OpenRouter AI", "Calendly"],
+        impact: "Qualification clients automatique",
+        steps: ["Client pose une question juridique via Telegram ou le site", "L'IA répond avec disclaimer professionnel approprié", "Qualification du besoin, de l'urgence et du domaine", "Proposition et réservation de rendez-vous si nécessaire", "Dossier pré-rempli transmis avant la consultation"]
+      }
+    ]
+  },
+  commercial: {
+    icon: "🤝", label: "Commercial / Sales",
+    automations: [
+      {
+        title: "Prospection automatique LinkedIn + Email",
+        desc: "Identifie des prospects qualifiés selon vos critères, génère des messages de contact ultra-personnalisés et planifie les séquences de suivi sur 14 jours. 50 prospects/jour.",
+        tools: ["LinkedIn / Apollo.io", "OpenRouter AI", "Gmail"],
+        impact: "50 prospects/jour sans effort",
+        steps: ["Définition des critères ICP (profil client idéal)", "Collecte automatique des prospects qualifiés", "L'IA analyse chaque profil et génère un message personnalisé", "Envoi du message d'approche via email ou LinkedIn", "Séquence de suivi automatique sur 14 jours"]
+      },
+      {
+        title: "Scoring et qualification automatique des leads entrants",
+        desc: "Chaque nouveau lead est scoré par l'IA selon son potentiel (taille entreprise, budget estimé, urgence), priorisé et assigné au bon commercial avec contexte complet.",
+        tools: ["Typeform / Google Forms", "OpenRouter AI", "CRM / Notion"],
+        impact: "Priorité aux meilleurs leads",
+        steps: ["Nouveau lead soumis via formulaire ou email entrant", "Enrichissement automatique du profil (entreprise, secteur...)", "L'IA attribue un score de qualification de 1 à 10", "Assignation automatique au commercial le plus adapté", "Alerte immédiate avec fiche contexte complète du lead"]
+      },
+      {
+        title: "Génération automatique de propositions commerciales",
+        desc: "Après un RDV, remplissez un formulaire de 5 minutes et recevez une proposition commerciale professionnelle, personnalisée et prête à envoyer en PDF sous 3 minutes.",
+        tools: ["Google Forms", "OpenRouter AI", "Google Docs / PDF"],
+        impact: "Devis en 5 min au lieu de 2h",
+        steps: ["Remplissage du formulaire post-rendez-vous (5 minutes)", "Récupération du template commercial et des données client", "L'IA rédige la proposition personnalisée selon le contexte", "Génération automatique du PDF professionnel mis en page", "Envoi automatique au prospect avec lien de suivi"]
+      },
+      {
+        title: "Nurturing automatique des prospects froids sur 6 mois",
+        desc: "Les prospects qui n'ont pas converti reçoivent du contenu de valeur sur 3 à 6 mois (articles, cas clients, offres) pour rester présent à leur esprit jusqu'à maturité.",
+        tools: ["Gmail", "OpenRouter AI", "Airtable / Notion"],
+        impact: "Réactivation de 20% des froids",
+        steps: ["Prospect classé 'froid' ou 'pas maintenant' dans le CRM", "Entrée dans la séquence de nurturing sur 6 mois", "L'IA sélectionne le contenu le plus pertinent selon le profil", "Email de valeur envoyé à intervalles optimaux définis", "Détection du signal d'achat (ouverture répétée) et alerte commercial"]
+      },
+      {
+        title: "Rapport de performance commerciale hebdomadaire",
+        desc: "Chaque vendredi soir, un rapport complet est généré et envoyé : deals closés, pipeline, prévisions, points bloquants et recommandations IA pour la semaine suivante.",
+        tools: ["CRM / Google Sheets", "OpenRouter AI", "Gmail / Slack"],
+        impact: "Manager informé sans réunion",
+        steps: ["Déclencheur automatique chaque vendredi à 18h", "Collecte de toutes les données CRM de la semaine", "L'IA analyse les tendances, wins et blocages", "Génération du rapport avec recommandations concrètes", "Envoi à l'équipe commerciale et à la direction"]
+      }
+    ]
+  }
+};
+
+const installStepsData = {
+  local: {
+    title: "💻 Étapes d'installation — Sur votre PC local",
+    alert: { type: 'warn', text: '⚠️ Important : Votre PC doit absolument rester allumé et connecté à Internet pour que vos automatisations fonctionnent. Si vous éteignez votre ordinateur, tous les workflows s\'arrêtent automatiquement. Cette méthode est idéale pour débuter, tester et apprendre — mais pas pour un usage professionnel en continu.' },
+    steps: [
+      { n:1, text: "Installer <strong>Node.js</strong> (version 18 ou plus) — Téléchargez sur <span style='color:#FF4D00'>nodejs.org</span> et lancez l'installateur" },
+      { n:2, text: "Ouvrir un terminal (CMD ou PowerShell sur Windows, Terminal sur Mac) et taper : <code style='color:#10b981; background:#111; padding:2px 8px; border-radius:4px'>npx n8n</code>" },
+      { n:3, text: "Patienter ~2 minutes pendant l'installation, puis ouvrir <code style='color:#10b981; background:#111; padding:2px 8px; border-radius:4px'>http://localhost:5678</code> dans votre navigateur" },
+      { n:4, text: "Créer votre compte administrateur local (email + mot de passe)" },
+      { n:5, text: "Importer les workflows JSON fournis dans votre pack via le bouton <strong>Import</strong> dans n8n" },
+      { n:6, text: "Configurer vos identifiants OpenRouter (clé API gratuite) selon le guide OpenRouter de ce pack" }
+    ]
+  },
+  hostinger: {
+    title: "☁️ Étapes d'installation — VPS Hostinger (Recommandé)",
+    alert: { type: 'ok', text: '✅ Avantage clé : Le VPS Hostinger tourne 24h/24 et 7j/7 indépendamment de votre PC. Toutes vos automatisations fonctionnent en permanence, même en vacances ou pendant la nuit. Pour ~5€/mois, c\'est la solution la plus professionnelle et la plus fiable du pack.' },
+    steps: [
+      { n:1, text: "Acheter un <strong>VPS KVM2</strong> sur <span style='color:#FF4D00'>hostinger.com</span> (~5€/mois). Choisissez Ubuntu 22.04 comme système d'exploitation" },
+      { n:2, text: "Récupérer vos identifiants SSH dans le tableau de bord Hostinger (adresse IP, nom d'utilisateur, mot de passe)" },
+      { n:3, text: "Se connecter via SSH : <code style='color:#10b981; background:#111; padding:2px 8px; border-radius:4px'>ssh root@VOTRE_IP</code> (Terminal Mac/Linux) ou PuTTY sur Windows" },
+      { n:4, text: "Lancer le script d'installation fourni dans le pack : <code style='color:#10b981; background:#111; padding:2px 8px; border-radius:4px'>bash install-n8n.sh</code> — tout s'installe automatiquement" },
+      { n:5, text: "Configurer votre domaine ou sous-domaine dans Hostinger pour accéder à n8n via <code style='color:#10b981; background:#111; padding:2px 8px; border-radius:4px'>https://n8n.votredomaine.com</code>" },
+      { n:6, text: "Importer vos workflows JSON et configurer vos credentials OpenRouter — accessibles depuis n'importe quel appareil, n'importe où" }
+    ]
+  }
+};
+
+let currentMetier = 'comptable';
+let currentInstall = 'local';
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  window.scrollTo(0, 0);
+  updateProgress(id);
+}
+
+function updateProgress(id) {
+  const map = { cover:0, sommaire:14, automations:42, install:70, openrouter:100 };
+  document.getElementById('progressFill').style.width = (map[id] || 0) + '%';
+}
+
+function switchMetier(id) {
+  currentMetier = id;
+  document.querySelectorAll('.metier-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  renderAutomations();
+}
+
+function renderAutomations() {
+  const m = data[currentMetier];
+  let html = '<div class="auto-list">';
+  m.automations.forEach((a, i) => {
+    const total = a.steps.length;
+    html += `
+      <div class="auto-card" id="auto-${i}" onclick="toggleAuto(${i})">
+        <div class="auto-card-header">
+          <div class="auto-num">${i+1}</div>
+          <div style="flex:1">
+            <div class="auto-title">${a.title}</div>
+            <div class="auto-desc">${a.desc}</div>
+            <div class="auto-meta">
+              ${a.tools.map(t => `<span class="tool-badge">${t}</span>`).join('')}
+              <span class="impact-badge">${a.impact}</span>
+            </div>
+          </div>
+          <div class="toggle-btn">▼</div>
+        </div>
+        <div class="auto-body">
+          <div class="workflow-title">⚡ Étapes du Workflow n8n</div>
+          <div class="workflow-steps">
+            ${a.steps.map((s, si) => `
+              <div class="step-row">
+                <div class="step-dot ${si===0?'start':si===total-1?'end':'mid'}">${si+1}</div>
+                <div class="step-text">${s}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  document.getElementById('autoContent').innerHTML = html;
+}
+
+function toggleAuto(i) {
+  const card = document.getElementById('auto-' + i);
+  card.classList.toggle('open');
+}
+
+function selectInstall(id) {
+  currentInstall = id;
+  document.querySelectorAll('.install-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('card-' + id).classList.add('selected');
+  renderInstallSteps();
+}
+
+function renderInstallSteps() {
+  const d = installStepsData[currentInstall];
+  let html = `
+    <div class="install-steps-block">
+      <div class="install-steps-title">${d.title}</div>
+      ${d.steps.map(s => `
+        <div class="install-step">
+          <div class="install-step-num">${s.n}</div>
+          <div class="install-step-text">${s.text}</div>
+        </div>
+      `).join('')}
+      <div style="margin-top:20px">
+        <div class="alert-box alert-${d.alert.type}">${d.alert.text}</div>
+      </div>
+    </div>`;
+  document.getElementById('installSteps').innerHTML = html;
+}
+
+function copyCode() {
+  const code = `URL: https://openrouter.ai/api/v1/chat/completions
+Methode: POST
+Header: Authorization: Bearer sk-or-v1-VOTRE_CLE
+
+Body (JSON):
+{
+  "model": "mistralai/mistral-7b-instruct:free",
+  "messages": [
+    {"role": "system", "content": "Tu es un assistant professionnel expert."},
+    {"role": "user", "content": "{{ $json.prompt }}"}
+  ]
+}`;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ Copié !';
+    btn.style.color = '#10b981';
+    setTimeout(() => { btn.textContent = 'Copier'; btn.style.color = ''; }, 2000);
+  });
+}
+
+// Init
+renderAutomations();
+renderInstallSteps();
+</script>
+</body>
+</html>
